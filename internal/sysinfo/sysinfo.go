@@ -11,8 +11,9 @@ import (
 
 	"github.com/zcalusic/sysinfo"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/credentials"
 
+	"github.com/SyntinelNyx/syntinel-agent/internal/data"
 	pb "github.com/SyntinelNyx/syntinel-agent/internal/proto"
 )
 
@@ -40,7 +41,13 @@ func SysInfo() string {
 }
 
 func ConnectToServer() {
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	// Create tls based credential
+	creds, err := credentials.NewClientTLSFromFile(data.Path("x509/ca_cert.pem"), "x.test.example.com")
+	if err != nil {
+		log.Fatalf("failed to load credentials: %v", err)
+	}
+
+	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}

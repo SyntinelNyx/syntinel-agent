@@ -6,4 +6,8 @@
 .env.*
 !.env.example
 
+*.crt
+*.key
+*.pem
+
 syntinel-agent
