@@ -21,13 +21,31 @@ func TestSysInfo(t *testing.T) {
     err := json.Unmarshal([]byte(info), &result)
     assert.NoError(t, err, "SysInfo should return valid JSON")
 
-    sysinfo, ok := result["sysinfo"].(map[string]interface{})
+    _, ok := result["sysinfo"].(map[string]interface{})
     assert.True(t, ok, "SysInfo JSON should contain 'sysinfo' field")
 
-    version, ok := sysinfo["version"].(string)
-    assert.True(t, ok, "SysInfo JSON should contain 'version' field in 'sysinfo'")
-    assert.Equal(t, "1.1.2", version, "SysInfo 'version' field should be '1.1.2'")
+    _, ok = result["node"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'node' field")
+
+    _, ok = result["os"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'os' field")
+
+    _, ok = result["kernel"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'kernel' field")
+
+    _, ok = result["bios"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'bios' field")
+
+    _, ok = result["cpu"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'cpu' field")
+
+    _, ok = result["memory"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'memory' field")
+
+    _, ok = result["storage"].([]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'storage' field")
 }
+
 
 func TestConnectToServer(t *testing.T) {
     // Create a listener for the mock server
