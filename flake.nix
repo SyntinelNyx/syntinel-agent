@@ -31,6 +31,11 @@
 
             # https://github.com/golangci/golangci-lint
             golangci-lint
+
+            # protobuf
+            protobuf_27
+            protoc-gen-go
+            protoc-gen-go-grpc
           ];
         };
       });

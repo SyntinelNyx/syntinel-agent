@@ -42,7 +42,7 @@ func SysInfo() string {
 
 func ConnectToServer() {
 	// Create tls based credential
-	creds, err := credentials.NewClientTLSFromFile(data.Path("x509/ca_cert.pem"), "x.test.example.com")
+	creds, err := credentials.NewClientTLSFromFile(data.Path("x509/ca_cert.pem"), "api.syntinel.dev")
 	if err != nil {
 		log.Fatalf("failed to load credentials: %v", err)
 	}
