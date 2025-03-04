@@ -1,13 +1,14 @@
 package sysinfo
 
 import (
-    "context"
-    "net"
-    "testing"
+	"context"
+	"encoding/json"
+	"net"
+	"testing"
 
-    "github.com/stretchr/testify/assert"
-    "google.golang.org/grpc"
-    "google.golang.org/grpc/test/bufconn"
+	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/test/bufconn"
 
 	pb "github.com/SyntinelNyx/syntinel-agent/internal/proto"
 )
@@ -15,6 +16,17 @@ import (
 func TestSysInfo(t *testing.T) {
     info := SysInfo()
     assert.NotEmpty(t, info, "SysInfo should return non-empty JSON string")
+
+    var result map[string]interface{}
+    err := json.Unmarshal([]byte(info), &result)
+    assert.NoError(t, err, "SysInfo should return valid JSON")
+
+    sysinfo, ok := result["sysinfo"].(map[string]interface{})
+    assert.True(t, ok, "SysInfo JSON should contain 'sysinfo' field")
+
+    version, ok := sysinfo["version"].(string)
+    assert.True(t, ok, "SysInfo JSON should contain 'version' field in 'sysinfo'")
+    assert.Equal(t, "1.1.2", version, "SysInfo 'version' field should be '1.1.2'")
 }
 
 func TestConnectToServer(t *testing.T) {
