@@ -40,7 +40,7 @@ func CreateSnapshot(
 		return fmt.Errorf("failed to create snapshot: %v", err)
 	}
 	fmt.Printf("Snapshot created successfully with ID: %s\n", manid)
-	fmt.Printf("Manifest: %v\n", manifest)
+	// fmt.Printf("Manifest: %v\n", manifest)
 
 	// if _, err := policy.ApplyRetentionPolicy(ctx, repwriter, srcinfo, true); err != nil {
 	// 	return fmt.Errorf("failed to apply retention policy: %v", err)
@@ -105,6 +105,14 @@ func OpenRepository() {
 		if err := w.Flush(ctx); err != nil {
 			log.Fatalf("failed to flush writer: %v\n", err)
 		}
+
+		snapshots, err := snapshot.ListSnapshots(ctx, rep, srcinfo)
+		if err != nil {
+			log.Fatalf("failed to list snapshots: %v\n", err)
+		}
+
+		fmt.Printf("Snapshots: %v\n", snapshots)
+
 		return nil
 	})
 	if err != nil {
