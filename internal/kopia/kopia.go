@@ -76,37 +76,72 @@ func OpenRepository() {
 	}
 	defer rep.Close(ctx)
 
-	ctx, repwriter, err := rep.NewWriter(ctx, repo.WriteSessionOptions{
+
+
+	err = repo.WriteSession(ctx, rep, repo.WriteSessionOptions{
 		Purpose: "CreateSnapshot",
+	},  func(ctx context.Context, w repo.RepositoryWriter) error {
+		srcdir, err := filepath.Abs("./data/test")
+		if err != nil {
+			log.Fatalf("failed to resolve file path: %v\n", err)
+		}
+		srcinfo := snapshot.SourceInfo{
+			Host:     rep.ClientOptions().Hostname,
+			UserName: rep.ClientOptions().Username,
+			Path:     filepath.Clean(srcdir),
+		}
+	
+		entry, err := localfs.NewEntry(srcinfo.Path)
+		if err != nil {
+			log.Fatalf("failed to create new entry: %v\n", err)
+		}
+	
+		uploader := snapshotfs.NewUploader(w)
+	
+		if err := CreateSnapshot(ctx, entry, rep, w, uploader, srcinfo); err != nil {
+			log.Fatalf("failed to snapshot source: %v\n", err)
+		}
+	
+		if err := w.Flush(ctx); err != nil {
+			log.Fatalf("failed to flush writer: %v\n", err)
+		}
+		return nil
 	})
 	if err != nil {
-		log.Fatalf("failed to create writer: %v\n", err)
+		log.Fatalf("failed to write session: %v\n", err)
 	}
 
-	srcdir, err := filepath.Abs("./data/test")
-	if err != nil {
-		log.Fatalf("failed to resolve file path: %v\n", err)
-	}
-	srcinfo := snapshot.SourceInfo{
-		Host:     rep.ClientOptions().Hostname,
-		UserName: rep.ClientOptions().Username,
-		Path:     filepath.Clean(srcdir),
-	}
+	// ctx, repwriter, err := rep.NewWriter(ctx, repo.WriteSessionOptions{
+	// 	Purpose: "CreateSnapshot",
+	// })
+	// if err != nil {
+	// 	log.Fatalf("failed to create writer: %v\n", err)
+	// }
 
-	entry, err := localfs.NewEntry(srcinfo.Path)
-	if err != nil {
-		log.Fatalf("failed to create new entry: %v\n", err)
-	}
+	// srcdir, err := filepath.Abs("./data/test")
+	// if err != nil {
+	// 	log.Fatalf("failed to resolve file path: %v\n", err)
+	// }
+	// srcinfo := snapshot.SourceInfo{
+	// 	Host:     rep.ClientOptions().Hostname,
+	// 	UserName: rep.ClientOptions().Username,
+	// 	Path:     filepath.Clean(srcdir),
+	// }
 
-	uploader := snapshotfs.NewUploader(repwriter)
+	// entry, err := localfs.NewEntry(srcinfo.Path)
+	// if err != nil {
+	// 	log.Fatalf("failed to create new entry: %v\n", err)
+	// }
 
-	if err := CreateSnapshot(ctx, entry, rep, repwriter, uploader, srcinfo); err != nil {
-		log.Fatalf("failed to snapshot source: %v\n", err)
-	}
+	// uploader := snapshotfs.NewUploader(repwriter)
 
-	if err := repwriter.Flush(ctx); err != nil {
-		log.Fatalf("failed to flush writer: %v\n", err)
-	}
+	// if err := CreateSnapshot(ctx, entry, rep, repwriter, uploader, srcinfo); err != nil {
+	// 	log.Fatalf("failed to snapshot source: %v\n", err)
+	// }
+
+	// if err := repwriter.Flush(ctx); err != nil {
+	// 	log.Fatalf("failed to flush writer: %v\n", err)
+	// }
 
 	// snapshots, err := snapshot.LoadSnapshot(ctx, rep, 0)
 	// if err != nil {
