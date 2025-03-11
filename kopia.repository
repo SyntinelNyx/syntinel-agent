@@ -1,0 +1,9 @@
+{
+  "tool": "https://github.com/kopia/kopia",
+  "buildVersion": "v0-unofficial",
+  "buildInfo": "unknown",
+  "uniqueID": "H/Ao1lniR9za+fWfuGnOq+LCHCmtO2Xkvxk9rZ+V+5U=",
+  "keyAlgo": "scrypt-65536-8-1",
+  "encryption": "AES256_GCM",
+  "encryptedBlockFormat": "R4s79hT0l+dEDJ08uGVsmMdF80JsJhGXF6J+gTCdE+NKYZtB/bsdSNQtowqJwS6rSVvATW6GEqRpGhebwj2LeSSnqkt7e3KLVpKbFzk3Hcwq3RZggbdjX0hR0MnCcJC9QMnBtFXQWGDUr0TrwKIzh5MfheLciurrjcyybpTaezH+ucgip8fZqMLOe9ifFSKiPacJaPFzcB45IJy+H6SN34SMqZowIWDwWfUZ1R3HHgwMq9z5RehUrxN3xgYWyD8rp0tqgHeSFMmCwsjbOszvIz7H9BdiEVwuUkFT5fv8OEllwPvPOhjeGiJ6aiOUVazCJ/6JWvej15rL+kbVPiEhkQXpVOY8HgLOeFaJBllh9NAqdBq/mISHW3zt8dKBmrASPfF7JQWWoQPYkI8JCZh5prBbGcHnpie190NogmxnvR9m9LakFA3uwq7oK7MjsUUX9iEGx1SQoVO2SHa+5DQXB+gr3pdBPNNaJ7DUjX3qEY3pmGLz1oG0PWaTqyGp8ioeU8bZ9fxx3QnQlzg7sTv03FnPr0SnA/M0LpLL/no96S71ghaSrd4zkkVJTML/6jDGuJdcb3gKhFKlN2sD8KW0FNvadV0fOs6WUfP4UUsmaX+sv2H43FOLBxb8CoRjRTnFBFyNs6z2K0nhCP4dKGtWoj5sUKR7h8KQpO4YFiKrE+2EG/jb6fseUoKXQfLQUd+pjOFKT43l3FLn+h/mVt2uOihGnFERC2xssGQSO9QgO6zS5cCQ0c0IjIpkOqmYNDJ/EQUdDPKZ41MhmbjVp2kJrhOK2aPdMUTc/fLwRAHR2w=="
+}

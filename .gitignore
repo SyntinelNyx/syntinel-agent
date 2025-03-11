@@ -10,4 +10,6 @@
 *.key
 *.pem
 
+own-writes
+
 syntinel-agent
