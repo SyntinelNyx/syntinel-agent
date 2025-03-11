@@ -12,6 +12,7 @@ import (
 	"github.com/kopia/kopia/repo"
 	_ "github.com/kopia/kopia/repo/blob/s3"
 	"github.com/kopia/kopia/snapshot"
+
 	// "github.com/kopia/kopia/snapshot/policy"
 	"github.com/kopia/kopia/snapshot/snapshotfs"
 	// "github.com/kopia/kopia/snapshot/restore"
@@ -28,7 +29,6 @@ func CreateSnapshot(
 	// if err != nil {
 	// 	return fmt.Errorf("failed to get policy tree from source: %v", err)
 	// }
-
 
 	manifest, err := uploader.Upload(ctx, fsentry, nil, srcinfo)
 	if err != nil {
@@ -58,7 +58,6 @@ func CreateSnapshot(
 
 	// fmt.Printf("Snapshots: %v\n", snapshots)
 
-
 	if err := repwriter.Close(ctx); err != nil {
 		log.Fatalf("failed to close writer: %v\n", err)
 	}
@@ -76,48 +75,47 @@ func OpenRepository() {
 	}
 	defer rep.Close(ctx)
 
-
+	srcdir, err := filepath.Abs("./data/test")
+	if err != nil {
+		log.Fatalf("failed to resolve file path: %v\n", err)
+	}
+	srcinfo := snapshot.SourceInfo{
+		Host:     rep.ClientOptions().Hostname,
+		UserName: rep.ClientOptions().Username,
+		Path:     filepath.Clean(srcdir),
+	}
 
 	err = repo.WriteSession(ctx, rep, repo.WriteSessionOptions{
 		Purpose: "CreateSnapshot",
-	},  func(ctx context.Context, w repo.RepositoryWriter) error {
-		srcdir, err := filepath.Abs("./data/test")
-		if err != nil {
-			log.Fatalf("failed to resolve file path: %v\n", err)
-		}
-		srcinfo := snapshot.SourceInfo{
-			Host:     rep.ClientOptions().Hostname,
-			UserName: rep.ClientOptions().Username,
-			Path:     filepath.Clean(srcdir),
-		}
-	
+	}, func(ctx context.Context, w repo.RepositoryWriter) error {
+
 		entry, err := localfs.NewEntry(srcinfo.Path)
 		if err != nil {
 			log.Fatalf("failed to create new entry: %v\n", err)
 		}
-	
+
 		uploader := snapshotfs.NewUploader(w)
-	
+
 		if err := CreateSnapshot(ctx, entry, rep, w, uploader, srcinfo); err != nil {
 			log.Fatalf("failed to snapshot source: %v\n", err)
 		}
-	
+
 		if err := w.Flush(ctx); err != nil {
 			log.Fatalf("failed to flush writer: %v\n", err)
 		}
-
-		snapshots, err := snapshot.ListSnapshots(ctx, rep, srcinfo)
-		if err != nil {
-			log.Fatalf("failed to list snapshots: %v\n", err)
-		}
-
-		fmt.Printf("Snapshots: %v\n", snapshots)
 
 		return nil
 	})
 	if err != nil {
 		log.Fatalf("failed to write session: %v\n", err)
 	}
+
+	snapshots, err := snapshot.ListSnapshots(ctx, rep, srcinfo)
+	if err != nil {
+		log.Fatalf("failed to list snapshots: %v\n", err)
+	}
+
+	fmt.Printf("Snapshots: %v\n", snapshots)
 
 	// ctx, repwriter, err := rep.NewWriter(ctx, repo.WriteSessionOptions{
 	// 	Purpose: "CreateSnapshot",
