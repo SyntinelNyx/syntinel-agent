@@ -12,8 +12,7 @@ import (
 	"github.com/kopia/kopia/repo"
 	_ "github.com/kopia/kopia/repo/blob/s3"
 	"github.com/kopia/kopia/snapshot"
-
-	// "github.com/kopia/kopia/snapshot/policy"
+	"github.com/kopia/kopia/snapshot/policy"
 	"github.com/kopia/kopia/snapshot/snapshotfs"
 	// "github.com/kopia/kopia/snapshot/restore"
 )
@@ -25,12 +24,13 @@ func CreateSnapshot(
 	repwriter repo.RepositoryWriter,
 	uploader *snapshotfs.Uploader,
 	srcinfo snapshot.SourceInfo) (err error) {
-	// _, err = policy.TreeForSource(ctx, repwriter, srcinfo)
-	// if err != nil {
-	// 	return fmt.Errorf("failed to get policy tree from source: %v", err)
-	// }
 
-	manifest, err := uploader.Upload(ctx, fsentry, nil, srcinfo)
+	policyTree, err := policy.TreeForSource(ctx, repwriter, srcinfo)
+	if err != nil {
+		return fmt.Errorf("failed to get policy tree from source: %v", err)
+	}
+
+	manifest, err := uploader.Upload(ctx, fsentry, policyTree, srcinfo)
 	if err != nil {
 		return fmt.Errorf("failed to upload entry: %v", err)
 	}
@@ -103,19 +103,21 @@ func OpenRepository() {
 		if err := w.Flush(ctx); err != nil {
 			log.Fatalf("failed to flush writer: %v\n", err)
 		}
-
+		
 		return nil
 	})
 	if err != nil {
 		log.Fatalf("failed to write session: %v\n", err)
 	}
 
-	snapshots, err := snapshot.ListSnapshots(ctx, rep, srcinfo)
-	if err != nil {
-		log.Fatalf("failed to list snapshots: %v\n", err)
-	}
+	
 
-	fmt.Printf("Snapshots: %v\n", snapshots)
+	// snapshots, err := snapshot.ListSnapshots(ctx, rep, srcinfo)
+	// if err != nil {
+	// 	log.Fatalf("failed to list snapshots: %v\n", err)
+	// }
+
+	// fmt.Printf("Snapshots: %v\n", snapshots)
 
 	// ctx, repwriter, err := rep.NewWriter(ctx, repo.WriteSessionOptions{
 	// 	Purpose: "CreateSnapshot",

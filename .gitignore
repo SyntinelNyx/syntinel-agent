@@ -10,6 +10,10 @@
 *.key
 *.pem
 
+indexes
 own-writes
+blob-list
+kopia.blobcfg
+kopia.repository
 
 syntinel-agent
