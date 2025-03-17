@@ -10,6 +10,7 @@
 *.key
 *.pem
 
+config.json
 indexes
 own-writes
 blob-list
