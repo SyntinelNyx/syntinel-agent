@@ -14,3 +14,11 @@ message HardwareInfo {
 message Response {
   string message = 1; // Response message from the server
 }
+
+message ReceiveScript {
+  bytes content = 1; // The script to be executed
+}
+
+message ScriptResponse {
+  string output = 1; // The output of the script
+}
