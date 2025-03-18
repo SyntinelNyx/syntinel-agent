@@ -1,10 +1,11 @@
 package main
 
 import (
-
-	
-	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
+	"github.com/SyntinelNyx/syntinel-agent/internal/grpc"
 )
+
 func main() {
-	sysinfo.SysInfo()
+	client := grpc.InitConnectToServer()
+
+	grpc.StartBidirectionalStream(client)
 }
