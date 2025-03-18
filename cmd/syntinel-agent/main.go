@@ -8,4 +8,6 @@ func main() {
 	client := grpc.InitConnectToServer()
 
 	grpc.StartBidirectionalStream(client)
+
+	// grpc.heartbeat(client)
 }

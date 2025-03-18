@@ -1,1 +1,3 @@
-meow meow meow
+#!/bin/bash
+
+ip a

@@ -37,6 +37,12 @@ func InitConnectToServer() pb.AgentServiceClient {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
+	// Directory to save received files
+	err = os.MkdirAll("./data/received_files", 0755)
+	if err != nil {
+		log.Fatalf("Error creating directory: %v", err)
+	}
+
 	// Fetch hardware info
 	hardwareInfo := sysinfo.SysInfo()
 
@@ -48,69 +54,55 @@ func InitConnectToServer() pb.AgentServiceClient {
 
 	slog.Info(fmt.Sprintf("Response from server: %s", resp.Message))
 
-    // Keep the connection open until the agent is terminated
-    // go func() {
-    //     <-context.Background().Done() // Wait for termination signal
-    //     conn.Close()                 // Close the connection when exiting
-    // }()
-
-    return client
+	return client
 }
 
 func StartBidirectionalStream(client proto.AgentServiceClient) {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	stream, err := client.BidirectionalStream(ctx)
-	if err != nil {
-		log.Fatalf("Error creating bidirectional stream: %v", err)
-	}
-
-    // directory to save received files
-    err = os.MkdirAll("./data/received_files", 0755)
-    if err != nil {
-        log.Fatalf("Error creating directory: %v", err)
-    }
-
-	// Goroutine to handle receiving files from the server
-	go func() {
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				log.Println("Server closed the stream")
-				break
-			}
-			if err != nil {
-				log.Fatalf("Error receiving file: %v", err)
-			}
-
-			// Save the received file
-			filePath := fmt.Sprintf("./data/received_files/%s", resp.Name)
-			err = os.WriteFile(filePath, []byte(resp.Content), 0644)
-			if err != nil {
-				log.Fatalf("Error saving file: %v", err)
-			}
-			log.Printf("Received file: %s, Status: %s", resp.Name, resp.Status)
+    ctx := context.Background()
+	for {
+		// Create a stream
+		stream, err := client.BidirectionalStream(ctx)
+		if err != nil {
+			log.Fatalf("Error creating stream: %v", err)
 		}
-	}()
+		defer stream.CloseSend()
 
-    // Keep sending periodic heartbeats or acknowledgments to the server
-    for {
-        err = stream.Send(&proto.ReceiveScript{
-            Name:    "Heartbeat",
-            Content: []byte("Agent is alive and awaiting commands."),
-        })
-        if err != nil {
-            log.Printf("Error sending heartbeat to server: %v", err)
-            break
-        }
-        time.Sleep(10 * time.Second) // Adjust the interval as needed
-    }
+		// Goroutine to handle incoming messages from the server
+		go func() {
+			for {
+				// Receive a script from the server
+				req, err := stream.Recv()
+				if err == io.EOF {
+					log.Println("Stream closed by server")
+					break
+				}
+				if err != nil {
+					log.Printf("Error receiving message: %v", err)
+					continue
+				}
 
-    // // Close the stream after communication
-	// err = stream.CloseSend()
-	// if err != nil {
-	// 	log.Fatalf("Error closing stream: %v", err)
-	// }
+				// Save the script locally
+				scriptPath := "data/received_files/" + req.GetName()
+				err = os.WriteFile(scriptPath, req.GetContent(), 0755)
+				if err != nil {
+					log.Printf("Error saving script %s: %v", scriptPath, err)
+					continue
+				}
+				log.Printf("Script %s saved successfully", scriptPath)
+
+				// Send a response back to the server
+				err = stream.Send(&proto.ScriptResponse{
+					Name:   req.GetName(),
+					Status: "Script Received and Saved",
+				})
+				if err != nil {
+					log.Printf("Error sending response for script %s: %v", req.GetName(), err)
+				}
+			}
+		}()
+		// Keep the main loop alive to handle reconnections if needed
+		<-ctx.Done()
+		log.Println("Context canceled, exiting bidirectional stream")
+		return
+	}
 }
-
