@@ -3,9 +3,6 @@ package sysinfo
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"log"
-	"log/slog"
 	"os/user"
 	"time"
 
@@ -14,61 +11,57 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/data"
+	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	pb "github.com/SyntinelNyx/syntinel-agent/internal/proto"
 )
 
 func SysInfo() string {
 	current, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("error getting current user: %v", err)
 	}
 
 	if current.Uid != "0" {
-		log.Fatal("Requires superuser privilege")
+		logger.Fatal("requires superuser privilege")
 	}
 
 	var si sysinfo.SysInfo
-
 	si.GetSysInfo()
 
-	// Marshal to JSON
 	data, err := json.MarshalIndent(&si, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshaling hardware info to JSON: %v", err)
+		logger.Fatal("Error marshaling hardware info to JSON: %v", err)
 	}
 
 	return string(data)
 }
 
 func ConnectToServer(conn *grpc.ClientConn) {
-    var err error
-    if conn == nil {
-        // Create tls based credential
-        creds, err := credentials.NewClientTLSFromFile(data.Path("x509/ca_cert.pem"), "api.syntinel.dev")
-        if err != nil {
-            log.Fatalf("failed to load credentials: %v", err)
-        }
+	var err error
+	if conn == nil {
+		creds, err := credentials.NewClientTLSFromFile(data.Path("x509/ca_cert.pem"), "api.syntinel.dev")
+		if err != nil {
+			logger.Fatal("failed to load credentials: %v", err)
+		}
 
-        conn, err = grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
-        if err != nil {
-            log.Fatalf("Failed to connect: %v", err)
-        }
-        defer conn.Close()
-    }
+		conn, err = grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(creds))
+		if err != nil {
+			logger.Fatal("Failed to connect: %v", err)
+		}
+		defer conn.Close()
+	}
 
-    client := pb.NewHardwareServiceClient(conn)
+	client := pb.NewHardwareServiceClient(conn)
 
-    ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-    defer cancel()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 
-    // Fetch hardware info
-    hardwareInfo := SysInfo()
+	hardwareInfo := SysInfo()
 
-    // Send to server
-    resp, err := client.SendHardwareInfo(ctx, &pb.HardwareInfo{JsonData: hardwareInfo})
-    if err != nil {
-        log.Fatalf("Error calling SendHardwareInfo: %v", err)
-    }
+	resp, err := client.SendHardwareInfo(ctx, &pb.HardwareInfo{JsonData: hardwareInfo})
+	if err != nil {
+		logger.Fatal("Error calling SendHardwareInfo: %v", err)
+	}
 
-    slog.Info(fmt.Sprintf("Response from server: %s", resp.Message))
+	logger.Info("Response from server: %s", resp.Message)
 }
