@@ -12,21 +12,19 @@ import (
 func SysInfo() string {
 	current, err := user.Current()
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal("error getting current user: %v", err)
 	}
 
 	if current.Uid != "0" {
-		log.Fatal("Requires superuser privilege")
+		logger.Fatal("requires superuser privilege")
 	}
 
 	var si sysinfo.SysInfo
-
 	si.GetSysInfo()
 
-	// Marshal to JSON
 	data, err := json.MarshalIndent(&si, "", "  ")
 	if err != nil {
-		log.Fatalf("Error marshaling hardware info to JSON: %v", err)
+		logger.Fatal("Error marshaling hardware info to JSON: %v", err)
 	}
 
 	return string(data)

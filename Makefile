@@ -3,7 +3,9 @@ syntinel-agent:
 run:
 	@go run ./cmd/syntinel-agent
 test:
-	@go test ./...
+	@go test ./... -v
+test_coverage:
+	@go test -cover ./...
 clean:
 	@rm ./syntinel-agent
 proto:
