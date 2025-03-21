@@ -47,12 +47,12 @@ func InitConnectToServer() pb.AgentServiceClient {
 	hardwareInfo := sysinfo.SysInfo()
 
 	// Send to server
-	resp, err := client.SendHardwareInfo(ctx, &pb.HardwareInfo{JsonData: hardwareInfo})
+	resp, err := client.SendHardwareInfo(ctx, &pb.HardwareInfoRequest{JsonData: hardwareInfo})
 	if err != nil {
 		log.Fatalf("Error calling SendHardwareInfo: %v", err)
 	}
 
-	slog.Info(fmt.Sprintf("Response from server: %s", resp.Message))
+	slog.Info(fmt.Sprintf("Response from sergrver: %s", resp.Message))
 
 	return client
 }
