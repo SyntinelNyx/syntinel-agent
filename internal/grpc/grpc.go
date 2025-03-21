@@ -26,7 +26,7 @@ func InitConnectToServer() pb.AgentServiceClient {
 	}
 
 	// Establish a connection to the server
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
@@ -52,13 +52,13 @@ func InitConnectToServer() pb.AgentServiceClient {
 		log.Fatalf("Error calling SendHardwareInfo: %v", err)
 	}
 
-	slog.Info(fmt.Sprintf("Response from sergrver: %s", resp.Message))
+	slog.Info(fmt.Sprintf("Response from server: %s", resp.Message))
 
 	return client
 }
 
 func StartBidirectionalStream(client proto.AgentServiceClient) {
-    ctx := context.Background()
+	ctx := context.Background()
 	for {
 		// Create a stream
 		stream, err := client.BidirectionalStream(ctx)
