@@ -15,6 +15,7 @@ import (
 	"github.com/SyntinelNyx/syntinel-agent/internal/data"
 	"github.com/SyntinelNyx/syntinel-agent/internal/proto"
 	pb "github.com/SyntinelNyx/syntinel-agent/internal/proto"
+	"github.com/SyntinelNyx/syntinel-agent/internal/shx"
 	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
 )
 
@@ -98,6 +99,10 @@ func StartBidirectionalStream(client proto.AgentServiceClient) {
 				if err != nil {
 					log.Printf("Error sending response for script %s: %v", req.GetName(), err)
 				}
+				
+				// Execute the script
+				shx.RunScript(scriptPath)
+				
 			}
 		}()
 		// Keep the main loop alive to handle reconnections if needed

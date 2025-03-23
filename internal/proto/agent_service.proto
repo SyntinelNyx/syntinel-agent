@@ -25,6 +25,8 @@ message ScriptRequest {
 message ScriptResponse {
   string name = 1; // Name of the script
   string status = 2; // Status of the script transfer
+  string output = 3; // Output of the script
+  string error = 4; // Error message if any
 }
 
 message HeartbeatRequest {
