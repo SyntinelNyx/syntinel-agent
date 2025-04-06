@@ -10,8 +10,7 @@
 *.key
 *.pem
 
-./data
-trivy
-kopia
+data/
+!internal/data/
 
 syntinel-agent
