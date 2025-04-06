@@ -2,10 +2,9 @@ package sysinfo
 
 import (
 	"encoding/json"
-	"log"
 	"os/user"
 
-
+	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/zcalusic/sysinfo"
 )
 
@@ -29,4 +28,3 @@ func SysInfo() string {
 
 	return string(data)
 }
-

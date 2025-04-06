@@ -36,6 +36,7 @@ mv ./data/dependencies/trivy /usr/bin
 echo "Trivy installed successfully."
 
 echo "Caching trivy database..."
-./data/dependencies/trivy image --download-db-only
+
+trivy fs --download-db-only
 
 echo "Trivy database cached successfully."
