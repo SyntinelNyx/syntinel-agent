@@ -8,7 +8,7 @@ import (
 //variable
 var binaryPath = "./data/dependencies/trivy"
 
-func DeepScan(path string) {
+func DeepScan(path string) string{
 	// Execute the binary
 	cmd := exec.Command(binaryPath, "fs", "-f", "json", "--scanners", "vuln", path)
 	// fmt.Println("Executing command:", cmd.String())	
@@ -17,4 +17,6 @@ func DeepScan(path string) {
 		fmt.Println("Error:", err)
 	}
 	fmt.Println(string(output))
+
+	return (string(output))
 }

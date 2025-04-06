@@ -17,6 +17,7 @@ import (
 	pb "github.com/SyntinelNyx/syntinel-agent/internal/proto"
 	"github.com/SyntinelNyx/syntinel-agent/internal/shx"
 	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
+	"github.com/SyntinelNyx/syntinel-agent/internal/trivy"
 )
 
 func InitConnectToServer() pb.AgentServiceClient {
@@ -64,7 +65,7 @@ func StartBidirectionalStream(client proto.AgentServiceClient) {
 		// Create a stream
 		stream, err := client.BidirectionalStream(ctx)
 		if err != nil {
-			log.Fatalf("Error creating stream: %v", err)
+			log.Fatalf("Error creating bidirectional stream: %v", err)
 		}
 		defer stream.CloseSend()
 
@@ -99,12 +100,67 @@ func StartBidirectionalStream(client proto.AgentServiceClient) {
 				if err != nil {
 					log.Printf("Error sending response for script %s: %v", req.GetName(), err)
 				}
-				
+
 				// Execute the script
 				shx.RunScript(scriptPath)
-				
+
 			}
 		}()
+		// Keep the main loop alive to handle reconnections if needed
+		<-ctx.Done()
+		log.Println("Context canceled, exiting bidirectional stream")
+		return
+	}
+}
+
+func SendTrivyScan(client proto.AgentServiceClient) {
+	ctx := context.Background()
+	for {
+		// Create a stream
+		stream, err := client.SendTrivyReport(ctx)
+		if err != nil {
+			log.Fatalf("Error creating trivy stream: %v", err)
+		}
+		defer stream.CloseSend()
+
+		go func() {
+			for {
+				// Receive request from the server
+				req, err := stream.Recv()
+				if err == io.EOF {
+					log.Println("Stream closed by server")
+					break
+				}
+				if err != nil {
+					log.Printf("Error receiving message: %v", err)
+					continue
+				}
+
+				var scanResult string
+
+				if req.GetMessage() == "DeepScan" {
+
+					// Perform a deep scan using Trivy
+					scanResult := trivy.DeepScan(req.GetPath())
+					if err != nil {
+						log.Printf("Error during deep scan: %v", err)
+						continue
+					}
+					log.Printf("Deep scan result: %s", scanResult)
+				}
+
+				// Send the scan result back to the server
+				err = stream.Send(&proto.TrivyReportResponse{
+					JsonData: scanResult,
+					Status:  "Scan Complete",
+				})
+				if err != nil {
+					log.Printf("Error sending scan result: %v", err)
+				}
+				log.Printf("Scan result sent successfully")
+			}
+		}()
+
 		// Keep the main loop alive to handle reconnections if needed
 		<-ctx.Done()
 		log.Println("Context canceled, exiting bidirectional stream")
