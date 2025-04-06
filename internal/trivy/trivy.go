@@ -16,7 +16,7 @@ func DeepScan(path string) string{
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
-	fmt.Println(string(output))
+	// fmt.Println(string(output))
 
 	return (string(output))
 }

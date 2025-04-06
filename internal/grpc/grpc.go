@@ -67,7 +67,7 @@ func StartBidirectionalStream(client proto.AgentServiceClient) {
 		if err != nil {
 			log.Fatalf("Error creating bidirectional stream: %v", err)
 		}
-		defer stream.CloseSend()
+		// defer stream.CloseSend()
 
 		// Goroutine to handle incoming messages from the server
 		go func() {
@@ -102,12 +102,22 @@ func StartBidirectionalStream(client proto.AgentServiceClient) {
 				}
 
 				// Execute the script
-				shx.RunScript(scriptPath)
+				output := shx.RunScript(scriptPath)
 
+				// Send a response back to the server
+				err = stream.Send(&proto.ScriptResponse{
+					Name:   req.GetName(),
+					Status: "Successfully ran",
+					Output: output,
+				})
+				if err != nil {
+					log.Printf("Error sending response for script execution %s: %v", scriptPath, err)
+				}
+				// defer stream.CloseSend()
 			}
 		}()
 		// Keep the main loop alive to handle reconnections if needed
-		<-ctx.Done()
+		// <-ctx.Done()
 		log.Println("Context canceled, exiting bidirectional stream")
 		return
 	}
@@ -121,7 +131,7 @@ func SendTrivyScan(client proto.AgentServiceClient) {
 		if err != nil {
 			log.Fatalf("Error creating trivy stream: %v", err)
 		}
-		defer stream.CloseSend()
+		// defer stream.CloseSend()
 
 		go func() {
 			for {
@@ -141,11 +151,8 @@ func SendTrivyScan(client proto.AgentServiceClient) {
 				if req.GetMessage() == "DeepScan" {
 
 					// Perform a deep scan using Trivy
-					scanResult := trivy.DeepScan(req.GetPath())
-					if err != nil {
-						log.Printf("Error during deep scan: %v", err)
-						continue
-					}
+					scanResult = trivy.DeepScan(req.GetPath())
+
 					log.Printf("Deep scan result: %s", scanResult)
 				}
 
