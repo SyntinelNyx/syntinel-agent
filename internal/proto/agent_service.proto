@@ -5,7 +5,7 @@ option go_package = "github.com/SyntinelNyx/syntinel-agent/internal/proto";
 
 service AgentService {
   rpc SendHardwareInfo (HardwareInfoRequest) returns (HardwareInfoResponse);
-  rpc BidirectionalStream (stream ScriptResponse) returns (stream ScriptRequest);
+  rpc BidirectionalStream (stream ActionsRequest) returns (stream ActionsResponse);
   rpc SendHeartbeat (HeartbeatRequest) returns (HeartbeatResponse);
   rpc SendTrivyReport (stream TrivyReportResponse) returns (stream TrivyReportRequest);
 }
@@ -18,15 +18,17 @@ message HardwareInfoResponse {
   string message = 1; // Response message from the server
 }
 
-message ScriptRequest {
+message ActionsRequest {
   string name = 1; // Name of the script
-  bytes content = 2; // The script to be executed
+  string command = 2; // The command to be executed
+  string arguments = 3; // Arguments for the command
+  bytes content = 4; // The content of the script or binary
 }
 
-message ScriptResponse {
+message ActionsResponse {
   string name = 1; // Name of the script
   string status = 2; // Status of the script transfer
-  string output = 3; // Output of the script
+  string output = 3; // Output of the Actions
   string error = 4; // Error message if any
 }
 
@@ -43,6 +45,7 @@ message TrivyReportRequest {
   string path = 2; // Path to scan
   string arguements = 3; // Arguments for the scan
 }
+
 message TrivyReportResponse {
   string json_data = 1; // The JSON string containing the Trivy report
   string status = 2; // Response message from the server

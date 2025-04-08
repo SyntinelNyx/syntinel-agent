@@ -1,4 +1,4 @@
-package trivy
+package actions
 
 import (
 	"fmt"

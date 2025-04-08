@@ -1,4 +1,4 @@
-package shx
+package actions
 
 import (
 	"fmt"
