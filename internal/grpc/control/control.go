@@ -23,14 +23,16 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 			return err
 		}
 
-		logger.Info("Received: command=%s payload=%s", msg.Command, msg.Payload)
+		logger.Info("Received: command=%s payload=%s misc=%t", msg.Command, msg.Payload, len(msg.Misc) != 0)
 
 		var result string
 		switch msg.Command {
-		case "ping":
-			result = "pong"
-		case "echo":
-			result = msg.Payload
+		case "heartbeat":
+			result = "<3"
+		case "exec":
+
+		case "download":
+
 		default:
 			result = "unknown command"
 		}

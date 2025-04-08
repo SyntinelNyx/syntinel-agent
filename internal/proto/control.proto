@@ -11,6 +11,7 @@ service AgentService {
 message ControlMessage {
   string command = 1;
   string payload = 2;
+  bytes misc = 3;
 }
 
 message ControlResponse {
