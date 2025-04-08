@@ -1,5 +1,5 @@
 syntinel-agent:
-	@go build ./cmd/syntinel-agent
+	@go clean && go build ./cmd/syntinel-agent
 run:
 	@go run ./cmd/syntinel-agent
 test:

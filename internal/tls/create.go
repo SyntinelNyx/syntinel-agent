@@ -19,7 +19,7 @@ const (
 func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateKey) (*x509.Certificate, *ecdsa.PrivateKey) {
 	logger.Info("Creating cert for %s...", agentID)
 
-	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		logger.Fatal("Failed to generate ECDSA key: %v", err)
 	}
@@ -39,7 +39,7 @@ func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateK
 		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
 	}
 
-	certDER, err := x509.CreateCertificate(rand.Reader, tmpl, ca, &priv.PublicKey, caKey)
+	certDER, err := x509.CreateCertificate(rand.Reader, tmpl, ca, &key.PublicKey, caKey)
 	if err != nil {
 		logger.Fatal("Failed to create certificate: %v", err)
 	}
@@ -49,5 +49,5 @@ func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateK
 		logger.Fatal("Failed to parse certificate: %v", err)
 	}
 
-	return cert, priv
+	return cert, key
 }
