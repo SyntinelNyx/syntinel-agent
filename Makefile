@@ -1,5 +1,7 @@
+id ?= dev
+
 syntinel-agent:
-	@go clean && go build ./cmd/syntinel-agent
+	@go clean && go build -o syntinel-agent-$(id) ./cmd/syntinel-agent 
 run:
 	@go run ./cmd/syntinel-agent
 test:

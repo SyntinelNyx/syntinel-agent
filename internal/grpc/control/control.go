@@ -2,7 +2,6 @@ package control
 
 import (
 	"io"
-	"log"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	controlpb "github.com/SyntinelNyx/syntinel-agent/internal/proto/controlpb"
@@ -19,7 +18,7 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 			return nil
 		}
 		if err != nil {
-			log.Printf("Recv error: %v", err)
+			logger.Error("Receive error: %v", err)
 			return err
 		}
 
@@ -42,7 +41,7 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 			Status: "ok",
 		})
 		if err != nil {
-			log.Printf("Send error: %v", err)
+			logger.Error("Send error: %v", err)
 			return err
 		}
 	}

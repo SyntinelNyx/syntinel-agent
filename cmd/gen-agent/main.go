@@ -4,9 +4,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"flag"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/google/uuid"
@@ -19,20 +21,28 @@ func main() {
 	caCertPath, caKeyPath := parseFlags()
 	caCert, caKey := loadTls(caCertPath, caKeyPath)
 
-	agentID := "agent-" + uuid.New().String()
+	id := uuid.New().String()
+	agentID := "agent-" + id
 	cert, key := tls.CreateAgentCert(agentID, caCert, caKey)
 
 	certName := agentID + ".crt"
 	keyName := agentID + ".key"
 
-	certPath := filepath.Join("internal", "data", certName)
-	keyPath := filepath.Join("internal", "data", keyName)
+	dataPath := filepath.Join("internal", "data")
+
+	idPath := filepath.Join(dataPath, "agent-id")
+	certPath := filepath.Join(dataPath, certName)
+	keyPath := filepath.Join(dataPath, keyName)
+
+	if err := os.WriteFile(idPath, []byte(id), 0644); err != nil {
+		logger.Fatal("Failed to write id to file: %v", err)
+	}
 
 	tls.WriteCert(certPath, cert)
 	tls.WriteKey(keyPath, key)
 
 	execTemplate(certName, keyName)
-	buildAgent()
+	buildAgent(id)
 }
 
 func parseFlags() (string, string) {
@@ -90,8 +100,8 @@ func execTemplate(certName, keyName string) {
 	logger.Info("File embed.go generated successfully.")
 }
 
-func buildAgent() {
-	cmd := exec.Command("make")
+func buildAgent(id string) {
+	cmd := exec.Command("make", fmt.Sprintf("id=%s", strings.Split(id, "-")[0]))
 	_, err := cmd.Output()
 
 	if err != nil {

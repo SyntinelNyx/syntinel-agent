@@ -16,6 +16,7 @@ import (
 )
 
 func main() {
+	logger.Info("Starting agent %s...", data.ID)
 	setup.CheckCommands()
 
 	stop := make(chan os.Signal, 1)
