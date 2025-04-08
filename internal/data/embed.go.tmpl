@@ -1,0 +1,9 @@
+package tls
+
+import _ "embed"
+
+//go:embed {{.CertPath}}
+var Cert []byte
+
+//go:embed {{.KeyPath}}
+var Key []byte

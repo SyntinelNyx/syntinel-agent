@@ -11,3 +11,5 @@
 *.pem
 
 syntinel-agent
+gen-agent
+embed.go

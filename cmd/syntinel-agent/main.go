@@ -1,8 +1,7 @@
 package main
 
-import "github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
+import "github.com/SyntinelNyx/syntinel-agent/internal/setup"
 
 func main() {
-	sysinfo.SysInfo()
+	setup.CheckCommands()
 }
-
