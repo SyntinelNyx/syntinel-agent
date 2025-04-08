@@ -7,7 +7,7 @@ service AgentService {
   rpc SendHardwareInfo (HardwareInfoRequest) returns (HardwareInfoResponse);
   rpc BidirectionalStream (stream ActionsRequest) returns (stream ActionsResponse);
   rpc SendHeartbeat (HeartbeatRequest) returns (HeartbeatResponse);
-  rpc SendTrivyReport (stream TrivyReportResponse) returns (stream TrivyReportRequest);
+  rpc SendFile (SendFileRequest) returns (SendFileResponse);
 }
 
 message HardwareInfoRequest {
@@ -19,7 +19,7 @@ message HardwareInfoResponse {
 }
 
 message ActionsRequest {
-  string name = 1; // Name of the script
+  string name = 1; // Name of the action
   string command = 2; // The command to be executed
   string arguments = 3; // Arguments for the command
   bytes content = 4; // The content of the script or binary
@@ -40,13 +40,11 @@ message HeartbeatResponse {
   string status = 1; // Message to be sent
 }
 
-message TrivyReportRequest {
-  string message = 1; // Message to be sent
-  string path = 2; // Path to scan
-  string arguements = 3; // Arguments for the scan
+message SendFileRequest {
+  string file_name = 1; // Name of the file to be sent
+  bytes content = 2; // Content of the file
 }
 
-message TrivyReportResponse {
-  string json_data = 1; // The JSON string containing the Trivy report
-  string status = 2; // Response message from the server
+message SendFileResponse {
+  string status = 1; // Status of the file transfer
 }
