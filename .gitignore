@@ -10,4 +10,7 @@
 *.key
 *.pem
 
-syntinel-agent
+syntinel-agent-*
+gen-agent
+embed.go
+agent-id
