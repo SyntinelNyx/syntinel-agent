@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	validFor = 365 * 24 * time.Hour
+	validFor = 100 * 365 * 24 * time.Hour
 )
 
 func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateKey) (*x509.Certificate, *ecdsa.PrivateKey) {
@@ -32,11 +32,15 @@ func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateK
 		Subject: pkix.Name{
 			CommonName: agentID,
 		},
-		DNSNames:    []string{agentID, "localhost", "api.syntinel.dev"},
-		NotBefore:   time.Now(),
-		NotAfter:    time.Now().Add(validFor),
-		KeyUsage:    x509.KeyUsageDigitalSignature,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth},
+		DNSNames:  []string{agentID, "localhost", "api.syntinel.dev"},
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().Add(validFor),
+		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		ExtKeyUsage: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageClientAuth,
+			x509.ExtKeyUsageServerAuth,
+		},
+		BasicConstraintsValid: true,
 	}
 
 	certDER, err := x509.CreateCertificate(rand.Reader, tmpl, ca, &key.PublicKey, caKey)
