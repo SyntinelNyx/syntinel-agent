@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -20,8 +21,13 @@ func CheckCommands() {
 func CreateDirectories() {
 	path := filepath.Join("/etc", "syntinel")
 
-    if err := exec.Command("mkdir", "-p", path).Run(); err != nil {
-        logger.Fatal("Failed to create directory %s ", path)
-    }
-    logger.Info("Syntinel directory created successfully.")
+	err := os.Mkdir(path, 0755)
+	if err != nil {
+		if os.IsExist(err) {
+			logger.Info("Directory %s already exists.", path)
+		} else {
+			logger.Fatal("Failed to create directory %s: %v", path, err)
+		}
+	}
+	logger.Info("Syntinel directory created successfully.")
 }

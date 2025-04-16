@@ -3,6 +3,7 @@ package commands
 import (
 	"os/exec"
 	"strings"
+    "path/filepath"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 )
@@ -31,7 +32,7 @@ func Exec(args ...string) string {
         return string(output)
 
     } else {
-        binaryPath := "/etc/syntinel/" + parsedArgs[0]
+        binaryPath := filepath.Join("/etc", "syntinel", parsedArgs[0])
 
         cmd := exec.Command(binaryPath, commandArgs...)
         output, err := cmd.CombinedOutput() // Captures stdout and stderr
