@@ -3,6 +3,7 @@ package control
 import (
 	"io"
 
+	"github.com/SyntinelNyx/syntinel-agent/internal/commands"
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	controlpb "github.com/SyntinelNyx/syntinel-agent/internal/proto/controlpb"
 )
@@ -28,9 +29,14 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 		switch msg.Command {
 		case "heartbeat":
 			result = "<3"
-		case "exec":
+		case "exec-binary":
+			result = commands.RunBinary(msg.Payload)
+
+		case "exec-script":
+			result = commands.RunScript(msg.Payload)
 
 		case "download":
+			result = commands.DownloadFile(msg.GetPayload(), msg.GetMisc()[0])
 
 		default:
 			result = "unknown command"
