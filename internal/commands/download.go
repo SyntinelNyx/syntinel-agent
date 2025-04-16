@@ -8,10 +8,10 @@ import (
     "github.com/SyntinelNyx/syntinel-agent/internal/logger"
 )
 
-func DownloadFile(name string, data byte) string {
+func DownloadFile(name string, data []byte) string {
 	path := filepath.Join("/etc", "syntinel", name)
 
-    err := os.WriteFile(path, []byte{data}, 0644)
+    err := os.WriteFile(path, data, 0644)
 
     if err != nil {
         logger.Error("Failed to write file %s: %v", path, err)

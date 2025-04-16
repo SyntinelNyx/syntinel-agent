@@ -36,7 +36,7 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 			result = commands.RunScript(msg.Payload)
 
 		case "download":
-			result = commands.DownloadFile(msg.GetPayload(), msg.GetMisc()[0])
+			result = commands.DownloadFile(msg.GetPayload(), msg.Misc)
 
 		default:
 			result = "unknown command"
