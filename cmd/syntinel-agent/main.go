@@ -10,6 +10,7 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/data"
+	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
 	"github.com/SyntinelNyx/syntinel-agent/internal/grpc"
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/SyntinelNyx/syntinel-agent/internal/setup"
@@ -29,6 +30,11 @@ func main() {
 
 	creds := credentials.NewServerTLSFromCert(&cert)
 	server := ggrpc.NewServer(ggrpc.Creds(creds))
+
+	sysinfo.HostInfo()
+	sysinfo.NetInfo()
+
+	sysinfo.SysInfo()
 
 	go func() {
 		server = grpc.Start(server)
