@@ -12,20 +12,35 @@ func Exec(args ...string) string {
 		logger.Error("No arguments provided")
 		return ""
 	}
+	
+    // Parse the first argument with space delimiter
+    parsedArgs := strings.Split(args[0], " ")
 
-	// Parse the first argument with space delimiter
-	parsedArgs := strings.Split(args[0], " ")
+    // Remaining arguments
+    commandArgs := parsedArgs[1:]
 
-	binaryPath := "/etc/syntinel/" + parsedArgs[0]
-	parsedArgs = parsedArgs[1:] // Remove the script name from the arguments
+    binaryPath, err := exec.LookPath(parsedArgs[0])
+    if err == nil {
+        cmd := exec.Command(binaryPath, commandArgs...)
+        output, err := cmd.CombinedOutput() // Captures stdout and stderr
+        if err != nil {
+            logger.Error("Error:", err)
+        }
 
-	// Execute the binary
-	cmd := exec.Command(binaryPath, parsedArgs...)
-	output, err := cmd.CombinedOutput() // Captures stdout and stderr
-	if err != nil {
-		logger.Error("Error:", err)
-	}
-	logger.Info(string(output))
+        logger.Info(string(output))
+        return string(output)
 
-	return string(output)
+    } else {
+        binaryPath := "/etc/syntinel/" + parsedArgs[0]
+
+        cmd := exec.Command(binaryPath, commandArgs...)
+        output, err := cmd.CombinedOutput() // Captures stdout and stderr
+        if err != nil {
+            logger.Error("Error:", err)
+        }
+
+        logger.Info(string(output))
+        return string(output)
+    }
+
 }

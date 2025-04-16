@@ -11,7 +11,7 @@ import (
 func DownloadFile(name string, data []byte) string {
 	path := filepath.Join("/etc", "syntinel", name)
 
-	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0755)
 	if err != nil {
 		logger.Error("Failed to open file %s: %v", path, err)
 		return fmt.Sprintf("Failed to open file %s: %v", path, err)
