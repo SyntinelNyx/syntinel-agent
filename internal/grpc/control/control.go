@@ -29,12 +29,9 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 		switch msg.Command {
 		case "heartbeat":
 			result = "<3"
-		case "exec-binary":
-			result = commands.RunBinary(msg.Payload)
-
-		case "exec-script":
-			result = commands.RunScript(msg.Payload)
-
+		case "exec":
+			result = commands.Exec(msg.Payload)
+			
 		case "download":
 			result = commands.DownloadFile(msg.GetPayload(), msg.Misc)
 
