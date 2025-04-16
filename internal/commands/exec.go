@@ -33,7 +33,7 @@ func RunScript(args ...string) string {
 
 func RunBinary(args ...string) string{
     if len(args) == 0 {
-        fmt.Println("No arguments provided")
+        logger.Error("No arguments provided")
         return ""
     }
 
@@ -47,9 +47,9 @@ func RunBinary(args ...string) string{
     cmd := exec.Command(binaryPath, parsedArgs...)
     output, err := cmd.CombinedOutput() // Captures stdout and stderr
     if err != nil {
-        fmt.Println("Error:", err)
+        logger.Error("Error:", err)
     }
-    fmt.Println(string(output))
+    logger.Info(string(output))
 
     return string(output)
 }

@@ -14,11 +14,11 @@ func DownloadFile(name string, data []byte) string {
     err := os.WriteFile(path, data, 0644)
 
     if err != nil {
-        logger.Error("Failed to write file %s: %v", path, err)
+        logger.Errorf("Failed to write file %s: %v", path, err)
         return fmt.Sprintf("Failed to write file %s: %v", path, err)
     }
 
-    logger.Info("File %s downloaded successfully", name)
+    logger.Infof("File %s downloaded successfully", name)
 
     return fmt.Sprintf("File %s downloaded successfully", name)
 }
