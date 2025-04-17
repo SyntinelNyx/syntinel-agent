@@ -2,6 +2,7 @@ package sysinfo
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/shirou/gopsutil/v4/cpu"
@@ -14,6 +15,7 @@ func CpuInfo() string {
 	CpuStat, err := cpu.Info()
 	if err != nil {
 		logger.Fatal("Error getting CPU info: %v", err)
+		return fmt.Sprintf("Error getting CPU info: %v", err)
 	}
 	
     // Extract general CPU info from the first CPU stat
@@ -29,6 +31,7 @@ func CpuInfo() string {
 	data, err := json.MarshalIndent(&generalCpuInfo, "", "  ")
 	if err != nil {
 		logger.Error("Error marshaling CPU info to JSON: %v", err)
+		return fmt.Sprintf("Error marshaling CPU info to JSON: %v", err)
 	}
 	logger.Info("CPU info: %s", string(data))
 	return string(data)
@@ -39,11 +42,13 @@ func MemInfo() string {
 	MemStat, err := mem.VirtualMemory()
 	if err != nil {
 		logger.Error("Error getting memory info: %v", err)
+		return fmt.Sprintf("Error getting memory info: %v", err)
 	}
 
 	data, err := json.MarshalIndent(&MemStat.Total, "", "  ")
 	if err != nil {
 		logger.Error("Error marshaling memory info to JSON: %v", err)
+		return fmt.Sprintf("Error marshaling memory info to JSON: %v", err)
 	}
 	logger.Info("Memory info: %s", string(data))
 	return string(data)
@@ -53,10 +58,12 @@ func DiskInfo() string {
 	DiskStat, err := disk.Usage("/")
 	if err != nil {
 		logger.Error("Error getting disk info: %v", err)
+		return fmt.Sprintf("Error getting disk info: %v", err)
 	}
 	data, err := json.MarshalIndent(&DiskStat.Total, "", "  ")
 	if err != nil {
 		logger.Error("Error marshaling disk info to JSON: %v", err)
+		return fmt.Sprintf("Error marshaling disk info to JSON: %v", err)
 	}
 	logger.Info("Disk info: %s", string(data))
 	return string(data)
@@ -67,6 +74,7 @@ func HostInfo() string {
 
 	if err != nil {
 		logger.Error("Error getting host info: %v", err)
+		return fmt.Sprintf("Error getting host info: %v", err)
 	}
 	data, err := json.MarshalIndent(&HostStat, "", "  ")
 	if err != nil {
@@ -87,6 +95,7 @@ func CombinedInfo() string {
 	data, err := json.MarshalIndent(combinedData, "", "  ")
 	if err != nil {
 		logger.Error("Error marshaling combined info to JSON: %v", err)
+		return fmt.Sprintf("Error marshaling combined info to JSON: %v", err)
 	}
 	logger.Info("Combined system info: %s", string(data))
 	return string(data)
