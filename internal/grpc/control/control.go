@@ -5,6 +5,7 @@ import (
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	controlpb "github.com/SyntinelNyx/syntinel-agent/internal/proto/controlpb"
+	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
 )
 
 type Agent struct {
@@ -32,6 +33,12 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 
 		case "download":
 
+		case "hostinfo":
+			result = sysinfo.CombinedInfo()
+		
+		case "sysinfo":
+			result = sysinfo.SysInfo()
+		
 		default:
 			result = "unknown command"
 		}
