@@ -8,7 +8,6 @@ import (
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
 	"github.com/shirou/gopsutil/v4/mem"
-	"github.com/shirou/gopsutil/v4/net"
 )
 
 func CpuInfo() string {
@@ -81,32 +80,18 @@ func HostInfo() string {
 	return string(data)
 }
 
-func NetInfo() string {
-	NetStat, err := net.Interfaces()
-	if err != nil {
-		logger.Fatal("Error getting network interfaces: %v", err)
-	}
-	data, err := json.MarshalIndent(&NetStat, "", "  ")
-	if err != nil {
-		logger.Fatal("Error marshaling network interfaces to JSON: %v", err)
-	}
-	logger.Info("Network interfaces: %s", string(data))
-	return string(data)
-}
-
 func CombinedInfo() string {
-    combinedData := map[string]interface{}{
-        "CPU":     json.RawMessage(CpuInfo()),
-        "Memory":  json.RawMessage(MemInfo()),
-        "Disk":    json.RawMessage(DiskInfo()),
-        "Host":    json.RawMessage(HostInfo()),
-        "Network": json.RawMessage(NetInfo()),
-    }
+	combinedData := map[string]interface{}{
+		"CPU":    json.RawMessage(CpuInfo()),
+		"Memory": json.RawMessage(MemInfo()),
+		"Disk":   json.RawMessage(DiskInfo()),
+		"Host":   json.RawMessage(HostInfo()),
+	}
 
-    data, err := json.MarshalIndent(combinedData, "", "  ")
-    if err != nil {
-        logger.Fatal("Error marshaling combined info to JSON: %v", err)
-    }
-    logger.Info("Combined system info: %s", string(data))
-    return string(data)
+	data, err := json.MarshalIndent(combinedData, "", "  ")
+	if err != nil {
+		logger.Fatal("Error marshaling combined info to JSON: %v", err)
+	}
+	logger.Info("Combined system info: %s", string(data))
+	return string(data)
 }

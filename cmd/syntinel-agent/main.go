@@ -35,7 +35,6 @@ func main() {
 	sysinfo.MemInfo()
 	sysinfo.DiskInfo()
 	sysinfo.HostInfo()
-	sysinfo.NetInfo()
 
 	sysinfo.SysInfo()
 
