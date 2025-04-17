@@ -3,6 +3,8 @@ package control
 import (
 	"io"
 
+	"github.com/SyntinelNyx/syntinel-agent/internal/commands"
+	"github.com/SyntinelNyx/syntinel-agent/internal/data"
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	controlpb "github.com/SyntinelNyx/syntinel-agent/internal/proto/controlpb"
 )
@@ -29,14 +31,20 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 		case "heartbeat":
 			result = "<3"
 		case "exec":
-
+			result, err = commands.Exec(msg.Payload)
 		case "download":
-
+			result, err = commands.DownloadFile(msg.Payload, msg.Misc)
 		default:
 			result = "unknown command"
 		}
 
+		if err != nil {
+			logger.Error("Error executing command: %v", err)
+			return err
+		}
+
 		err = stream.Send(&controlpb.ControlResponse{
+			Uuid:   string(data.ID),
 			Result: result,
 			Status: "ok",
 		})
