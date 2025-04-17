@@ -28,7 +28,7 @@ func CpuInfo() string {
 
 	data, err := json.MarshalIndent(&generalCpuInfo, "", "  ")
 	if err != nil {
-		logger.Fatal("Error marshaling CPU info to JSON: %v", err)
+		logger.Error("Error marshaling CPU info to JSON: %v", err)
 	}
 	logger.Info("CPU info: %s", string(data))
 	return string(data)
@@ -38,12 +38,12 @@ func CpuInfo() string {
 func MemInfo() string {
 	MemStat, err := mem.VirtualMemory()
 	if err != nil {
-		logger.Fatal("Error getting memory info: %v", err)
+		logger.Error("Error getting memory info: %v", err)
 	}
 
 	data, err := json.MarshalIndent(&MemStat.Total, "", "  ")
 	if err != nil {
-		logger.Fatal("Error marshaling memory info to JSON: %v", err)
+		logger.Error("Error marshaling memory info to JSON: %v", err)
 	}
 	logger.Info("Memory info: %s", string(data))
 	return string(data)
@@ -52,11 +52,11 @@ func MemInfo() string {
 func DiskInfo() string {
 	DiskStat, err := disk.Usage("/")
 	if err != nil {
-		logger.Fatal("Error getting disk info: %v", err)
+		logger.Error("Error getting disk info: %v", err)
 	}
 	data, err := json.MarshalIndent(&DiskStat.Total, "", "  ")
 	if err != nil {
-		logger.Fatal("Error marshaling disk info to JSON: %v", err)
+		logger.Error("Error marshaling disk info to JSON: %v", err)
 	}
 	logger.Info("Disk info: %s", string(data))
 	return string(data)
@@ -66,11 +66,11 @@ func HostInfo() string {
 	HostStat, err := host.Info()
 
 	if err != nil {
-		logger.Fatal("Error getting host info: %v", err)
+		logger.Error("Error getting host info: %v", err)
 	}
 	data, err := json.MarshalIndent(&HostStat, "", "  ")
 	if err != nil {
-		logger.Fatal("Error marshaling host info to JSON: %v", err)
+		logger.Error("Error marshaling host info to JSON: %v", err)
 	}
 	logger.Info("Host info: %s", string(data))
 	return string(data)
@@ -86,7 +86,7 @@ func CombinedInfo() string {
 
 	data, err := json.MarshalIndent(combinedData, "", "  ")
 	if err != nil {
-		logger.Fatal("Error marshaling combined info to JSON: %v", err)
+		logger.Error("Error marshaling combined info to JSON: %v", err)
 	}
 	logger.Info("Combined system info: %s", string(data))
 	return string(data)

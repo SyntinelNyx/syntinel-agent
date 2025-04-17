@@ -20,20 +20,18 @@ func SysInfo() string {
 
 	memStat, err := mem.VirtualMemory()
 	if err != nil {
-		logger.Fatal("Error getting memory info: %v", err)
-	} else if len(cpuPercent) > 0 {
-		// logger.Info("CPU Usage: %.2f%%", cpuPercent[0])
+		logger.Error("Error getting memory info: %v", err)
+	} else {
+		logger.Info("Memory Info: %v", memStat)
 	}
 
 	diskStat, err := disk.Usage("/")
 	if err != nil {
-		logger.Fatal("Error getting disk info: %v", err)
-	} else if len(cpuPercent) > 0 {
-		// logger.Info("CPU Usage: %.2f%%", cpuPercent[0])
+		logger.Error("Error getting disk info: %v", err)
+	} else {
+		logger.Info("Disk Info: %v", diskStat)
+	
 	}
-
-	logger.Info("Memory Info: %v", memStat)
-
-	logger.Info("Disk Info: %v", diskStat)
-	return ""
+	
+	return 
 }
