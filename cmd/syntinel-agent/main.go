@@ -31,14 +31,6 @@ func main() {
 	creds := credentials.NewServerTLSFromCert(&cert)
 	server := ggrpc.NewServer(ggrpc.Creds(creds))
 
-	sysinfo.CpuInfo()
-	sysinfo.MemInfo()
-	sysinfo.DiskInfo()
-	sysinfo.HostInfo()
-
-	sysinfo.SysInfo()
-
-
 	go func() {
 		server = grpc.Start(server)
 	}()
