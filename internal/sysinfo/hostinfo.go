@@ -15,22 +15,18 @@ func CpuInfo() string {
 	if err != nil {
 		logger.Fatal("Error getting CPU info: %v", err)
 	}
-	var individualCpuStats []map[string]interface{}
+	
+    // Extract general CPU info from the first CPU stat
+    generalCpuInfo := map[string]interface{}{
+        "VendorID":  CpuStat[0].VendorID,
+        "ModelName": CpuStat[0].ModelName,
+        "Mhz":       CpuStat[0].Mhz,
+        "CacheSize": CpuStat[0].CacheSize,
+    }
 
-	for _, stat := range CpuStat {
-		// Convert each InfoStat struct to a map for JSON marshaling
-		cpuInfo := map[string]interface{}{
-			"CPU":       stat.CPU,
-			"VendorID":  stat.VendorID,
-			"CoreID":    stat.CoreID,
-			"ModelName": stat.ModelName,
-			"Mhz":       stat.Mhz,
-			"CacheSize": stat.CacheSize,
-		}
-		individualCpuStats = append(individualCpuStats, cpuInfo)
-	}
+    generalCpuInfo["Cores"] = len(CpuStat)
 
-	data, err := json.MarshalIndent(&individualCpuStats, "", "  ")
+	data, err := json.MarshalIndent(&generalCpuInfo, "", "  ")
 	if err != nil {
 		logger.Fatal("Error marshaling CPU info to JSON: %v", err)
 	}

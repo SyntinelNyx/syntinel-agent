@@ -10,7 +10,6 @@ import (
 	"google.golang.org/grpc/credentials"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/data"
-	"github.com/SyntinelNyx/syntinel-agent/internal/sysinfo"
 	"github.com/SyntinelNyx/syntinel-agent/internal/grpc"
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/SyntinelNyx/syntinel-agent/internal/setup"
