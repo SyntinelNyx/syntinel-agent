@@ -17,8 +17,9 @@ import (
 
 func main() {
 	logger.Info("Starting agent %s...", data.ID)
+
 	setup.CheckCommands()
-	setup.CreateDirectories()
+	setup.CreateDirectory()
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)

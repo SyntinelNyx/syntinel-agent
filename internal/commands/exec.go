@@ -1,47 +1,27 @@
 package commands
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
-    "path/filepath"
-
-	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 )
 
-func Exec(args ...string) string {
-	if len(args) == 0 {
-		logger.Error("No arguments provided")
-		return ""
+func Exec(command string) (string, error) {
+	if len(command) == 0 {
+		return "", fmt.Errorf("not enough argument")
 	}
-	
-    // Parse the first argument with space delimiter
-    parsedArgs := strings.Split(args[0], " ")
 
-    // Remaining arguments
-    commandArgs := parsedArgs[1:]
+	args := strings.Fields(command)
+	execPath, err := exec.LookPath(args[0])
+	if err != nil {
+		return "", fmt.Errorf("Error resolving path for %s: %v", args[0], err)
+	}
 
-    binaryPath, err := exec.LookPath(parsedArgs[0])
-    if err == nil {
-        cmd := exec.Command(binaryPath, commandArgs...)
-        output, err := cmd.CombinedOutput() // Captures stdout and stderr
-        if err != nil {
-            logger.Error("Error:", err)
-        }
+	cmd := exec.Command(execPath, args[1:]...)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return "", fmt.Errorf("Error executing command: %v", err)
+	}
 
-        logger.Info(string(output))
-        return string(output)
-
-    } else {
-        binaryPath := filepath.Join("/etc", "syntinel", parsedArgs[0])
-
-        cmd := exec.Command(binaryPath, commandArgs...)
-        output, err := cmd.CombinedOutput() // Captures stdout and stderr
-        if err != nil {
-            logger.Error("Error:", err)
-        }
-
-        logger.Info(string(output))
-        return string(output)
-    }
-
+	return string(output), nil
 }
