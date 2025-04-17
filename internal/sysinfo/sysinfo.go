@@ -19,12 +19,13 @@ func SysInfo() string {
 		sysInfo["CPU"] = "Error retrieving CPU info"
 		logger.Error("Error getting CPU percentage: %v", err)
 	} else {
-		for i := range cpuPercent {
-			sysInfo["CPU"] = cpuPercent
-			logger.Info("CPU Usage: %.2f%%", cpuPercent[i])
-		}
-	}
-
+        formattedCPU := make([]string, len(cpuPercent))
+        for i, percent := range cpuPercent {
+			formattedCPU[i] = fmt.Sprintf("CPU[%d] %.2f", i, percent)
+            logger.Info("CPU Usage: %.2f%%", percent)
+        }
+        sysInfo["CPU"] = formattedCPU
+    }
 	memStat, err := mem.VirtualMemory()
 	if err != nil {
 		sysInfo["Memory"] = "Error retrieving memory info"
@@ -34,7 +35,7 @@ func SysInfo() string {
 			"Total":       memStat.Total,
 			"Available":   memStat.Available,
 			"Used":        memStat.Used,
-			"UsedPercent": memStat.UsedPercent,
+			"UsedPercent": fmt.Sprintf("%.2f", memStat.UsedPercent),
 		}
 		sysInfo["Memory"] = memoryInfo
 		logger.Info("Memory Info: %v", memoryInfo)
@@ -49,7 +50,7 @@ func SysInfo() string {
 			"Total":       diskStat.Total,
 			"Free":        diskStat.Free,
 			"Used":        diskStat.Used,
-			"UsedPercent": diskStat.UsedPercent,
+			"UsedPercent": fmt.Sprintf("%.2f", diskStat.UsedPercent),
 		}
 		sysInfo["Disk"] = diskInfo
 		logger.Info("Disk Info: %v", diskInfo)
