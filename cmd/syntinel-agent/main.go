@@ -28,7 +28,11 @@ func main() {
 	}
 
 	creds := credentials.NewServerTLSFromCert(&cert)
-	server := ggrpc.NewServer(ggrpc.Creds(creds))
+	server := ggrpc.NewServer(
+		ggrpc.Creds(creds),
+		ggrpc.MaxRecvMsgSize(1024*1024*1024),
+		ggrpc.MaxSendMsgSize(1024*1024*1024),
+	)
 
 	go func() {
 		server = grpc.Start(server)
