@@ -1,6 +1,8 @@
 package sysinfo
 
 import (
+	"time"
+
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -9,7 +11,7 @@ import (
 
 func SysInfo() string {
 
-	cpuPercent, err := cpu.Percent(1, true)
+	cpuPercent, err := cpu.Percent(2*time.Second, true)
 	if err != nil {
 		logger.Error("Error getting CPU percentage: %v", err)
 	} else {
@@ -22,16 +24,27 @@ func SysInfo() string {
 	if err != nil {
 		logger.Error("Error getting memory info: %v", err)
 	} else {
-		logger.Info("Memory Info: %v", memStat)
+		memoryInfo := map[string]interface{}{
+			"Total":       memStat.Total,
+			"Available":   memStat.Available,
+			"Used":        memStat.Used,
+			"UsedPercent": memStat.UsedPercent,
+		}
+		logger.Info("Memory Info: %v", memoryInfo)
 	}
 
 	diskStat, err := disk.Usage("/")
 	if err != nil {
 		logger.Error("Error getting disk info: %v", err)
 	} else {
-		logger.Info("Disk Info: %v", diskStat)
-	
+		diskInfo := map[string]interface{}{
+			"Total":       diskStat.Total,
+			"Free":        diskStat.Free,
+			"Used":        diskStat.Used,
+			"UsedPercent": diskStat.UsedPercent,
+		}
+		logger.Info("Disk Info: %v", diskInfo)
 	}
-	
-	return 
+
+	return ""
 }
