@@ -19,7 +19,7 @@ func CpuInfo() string {
 	}
 	
     // Extract general CPU info from the first CPU stat
-    generalCpuInfo := map[string]interface{}{
+    generalCpuInfo := map[string]any{
         "VendorID":  CpuStat[0].VendorID,
         "ModelName": CpuStat[0].ModelName,
         "Mhz":       CpuStat[0].Mhz,
@@ -85,7 +85,7 @@ func HostInfo() string {
 }
 
 func CombinedInfo() string {
-	combinedData := map[string]interface{}{
+	combinedData := map[string]any{
 		"CPU":    json.RawMessage(CpuInfo()),
 		"Memory": json.RawMessage(MemInfo()),
 		"Disk":   json.RawMessage(DiskInfo()),
