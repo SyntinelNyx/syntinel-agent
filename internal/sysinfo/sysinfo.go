@@ -11,7 +11,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-func SysInfo() string {
+func SysInfo() (string, error) {
 	sysInfo := make(map[string]any)
 
 	cpuPercent, err := cpu.Percent(2*time.Second, true)
@@ -55,8 +55,8 @@ func SysInfo() string {
 
 	jsonData, err := json.Marshal(sysInfo)
 	if err != nil {
-		return fmt.Sprintf("Error marshalling system info to JSON: %v", err)
+		return "", fmt.Errorf("Error marshalling system info to JSON: %v", err)
 	}
 
-	return string(jsonData)
+	return string(jsonData), nil
 }

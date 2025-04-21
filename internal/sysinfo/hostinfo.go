@@ -11,10 +11,10 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-func CpuInfo() string {
+func CpuInfo() (string, error) {
 	CpuStat, err := cpu.Info()
 	if err != nil {
-		return fmt.Sprintf("Error getting CPU info: %v", err)
+		return "", fmt.Errorf("Error getting CPU info: %v", err)
 	}
 	
     // Extract general CPU info from the first CPU stat
@@ -29,66 +29,95 @@ func CpuInfo() string {
 
 	data, err := json.MarshalIndent(&generalCpuInfo, "", "  ")
 	if err != nil {
-		return fmt.Sprintf("Error marshaling CPU info to JSON: %v", err)
+		return "", fmt.Errorf("Error marshaling CPU info to JSON: %v", err)
 	}
 	logger.Info("CPU info: %s", string(data))
-	return string(data)
+	return string(data), nil
 
 }
 
-func MemInfo() string {
+func MemInfo() (string, error) {
 	MemStat, err := mem.VirtualMemory()
 	if err != nil {
-		return fmt.Sprintf("Error getting memory info: %v", err)
+		return "", fmt.Errorf("Error getting memory info: %v", err)
 	}
 
 	data, err := json.MarshalIndent(&MemStat.Total, "", "  ")
 	if err != nil {
-		return fmt.Sprintf("Error marshaling memory info to JSON: %v", err)
+		return "", fmt.Errorf("Error marshaling memory info to JSON: %v", err)
 	}
 	logger.Info("Memory info: %s", string(data))
-	return string(data)
+	return string(data), nil
 }
 
-func DiskInfo() string {
+func DiskInfo() (string, error) {
 	DiskStat, err := disk.Usage("/")
 	if err != nil {
-		return fmt.Sprintf("Error getting disk info: %v", err)
+		return "", fmt.Errorf("Error getting disk info: %v", err)
 	}
 	data, err := json.MarshalIndent(&DiskStat.Total, "", "  ")
 	if err != nil {
-		return fmt.Sprintf("Error marshaling disk info to JSON: %v", err)
+		return "", fmt.Errorf("Error marshaling disk info to JSON: %v", err)
 	}
 	logger.Info("Disk info: %s", string(data))
-	return string(data)
+	return string(data), nil
 }
 
-func HostInfo() string {
+func HostInfo() (string, error) {
 	HostStat, err := host.Info()
 
 	if err != nil {
-		return fmt.Sprintf("Error getting host info: %v", err)
+		return "", fmt.Errorf("Error getting host info: %v", err)
 	}
 	data, err := json.MarshalIndent(&HostStat, "", "  ")
 	if err != nil {
-		return fmt.Sprintf("Error marshaling host info to JSON: %v", err)
+		return "", fmt.Errorf("Error marshaling host info to JSON: %v", err)
 	}
 	logger.Info("Host info: %s", string(data))
-	return string(data)
+	return string(data), nil
 }
 
-func CombinedInfo() string {
-	combinedData := map[string]any{
-		"CPU":    json.RawMessage(CpuInfo()),
-		"Memory": json.RawMessage(MemInfo()),
-		"Disk":   json.RawMessage(DiskInfo()),
-		"Host":   json.RawMessage(HostInfo()),
-	}
+func CombinedInfo() (string, error) {
+    combinedData := make(map[string]any)
+    
+    // Collect CPU info
+    if cpuInfo, err := CpuInfo(); err == nil {
+        combinedData["CPU"] = json.RawMessage(cpuInfo)
+    } else {
+        logger.Warn("Skipping CPU info: %v", err)
+    }
 
-	data, err := json.MarshalIndent(combinedData, "", "  ")
-	if err != nil {
-		return fmt.Sprintf("Error marshaling combined info to JSON: %v", err)
-	}
-	logger.Info("Combined system info: %s", string(data))
-	return string(data)
+    // Collect memory info
+    if memInfo, err := MemInfo(); err == nil {
+        combinedData["Memory"] = json.RawMessage(memInfo)
+    } else {
+        logger.Warn("Skipping memory info: %v", err)
+    }
+
+    // Collect disk info
+    if diskInfo, err := DiskInfo(); err == nil {
+        combinedData["Disk"] = json.RawMessage(diskInfo)
+    } else {
+        logger.Warn("Skipping disk info: %v", err)
+    }
+
+    // Collect host info
+    if hostInfo, err := HostInfo(); err == nil {
+        combinedData["Host"] = json.RawMessage(hostInfo)
+    } else {
+        logger.Warn("Skipping host info: %v", err)
+    }
+
+    // Return error only if no data was collected
+    if len(combinedData) == 0 {
+        return "", fmt.Errorf("Failed to collect any system information")
+    }
+
+    data, err := json.MarshalIndent(combinedData, "", "  ")
+    if err != nil {
+        return "", fmt.Errorf("Error marshaling combined info to JSON: %v", err)
+    }
+    
+    logger.Info("Combined system info collected (%d components)", len(combinedData))
+    return string(data), nil
 }

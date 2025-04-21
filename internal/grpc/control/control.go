@@ -36,7 +36,7 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 		case "download":
 			result, err = commands.DownloadFile(msg.Payload, msg.Misc)
 		case "sysinfo":
-			result = sysinfo.SysInfo()
+			result, err = sysinfo.SysInfo()
 		default:
 			result = "unknown command"
 		}
