@@ -35,8 +35,6 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 			result, err = commands.Exec(msg.Payload)
 		case "download":
 			result, err = commands.DownloadFile(msg.Payload, msg.Misc)
-		case "hostinfo":
-			result = sysinfo.CombinedInfo()
 		case "sysinfo":
 			result = sysinfo.SysInfo()
 		default:

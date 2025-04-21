@@ -17,19 +17,17 @@ func SysInfo() string {
 	cpuPercent, err := cpu.Percent(2*time.Second, true)
 	if err != nil {
 		sysInfo["CPU"] = "Error retrieving CPU info"
-		logger.Error("Error getting CPU percentage: %v", err)
 	} else {
         formattedCPU := make([]string, len(cpuPercent))
         for i, percent := range cpuPercent {
 			formattedCPU[i] = fmt.Sprintf("CPU[%d] %.2f", i, percent)
-            logger.Info("CPU Usage: %.2f%%", percent)
         }
         sysInfo["CPU"] = formattedCPU
+		logger.Info("CPU Info: %v", formattedCPU)
     }
 	memStat, err := mem.VirtualMemory()
 	if err != nil {
 		sysInfo["Memory"] = "Error retrieving memory info"
-		logger.Error("Error getting memory info: %v", err)
 	} else {
 		memoryInfo := map[string]any{
 			"Total":       memStat.Total,
@@ -44,7 +42,6 @@ func SysInfo() string {
 	diskStat, err := disk.Usage("/")
 	if err != nil {
 		sysInfo["Disk"] = "Error retrieving disk info"
-		logger.Error("Error getting disk info: %v", err)
 	} else {
 		diskInfo := map[string]any{
 			"Total":       diskStat.Total,
@@ -58,7 +55,6 @@ func SysInfo() string {
 
 	jsonData, err := json.Marshal(sysInfo)
 	if err != nil {
-		logger.Error("Error marshalling system info to JSON: %v", err)
 		return fmt.Sprintf("Error marshalling system info to JSON: %v", err)
 	}
 
