@@ -1,6 +1,6 @@
 id ?= dev
 ca-cert ?= 
-ca-key ?=
+ca-key ?=  
 
 syntinel-agent:
 	@go clean && go build -o syntinel-agent-$(id) ./cmd/syntinel-agent 
