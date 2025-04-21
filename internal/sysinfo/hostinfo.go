@@ -81,31 +81,31 @@ func CombinedInfo() (string, error) {
     combinedData := make(map[string]any)
     
     // Collect CPU info
-    if cpuInfo, err := CpuInfo(); err == nil {
-        combinedData["CPU"] = json.RawMessage(cpuInfo)
+    if cpuInfo, err := CpuInfo(); err != nil {
+		logger.Warn("Skipping CPU info: %v", err)
     } else {
-        logger.Warn("Skipping CPU info: %v", err)
+		combinedData["CPU"] = json.RawMessage(cpuInfo)
     }
 
     // Collect memory info
-    if memInfo, err := MemInfo(); err == nil {
-        combinedData["Memory"] = json.RawMessage(memInfo)
-    } else {
+    if memInfo, err := MemInfo(); err != nil {
         logger.Warn("Skipping memory info: %v", err)
+    } else {
+		combinedData["Memory"] = json.RawMessage(memInfo)
     }
 
     // Collect disk info
-    if diskInfo, err := DiskInfo(); err == nil {
-        combinedData["Disk"] = json.RawMessage(diskInfo)
-    } else {
+    if diskInfo, err := DiskInfo(); err != nil {
         logger.Warn("Skipping disk info: %v", err)
+    } else {
+		combinedData["Disk"] = json.RawMessage(diskInfo)
     }
 
     // Collect host info
-    if hostInfo, err := HostInfo(); err == nil {
-        combinedData["Host"] = json.RawMessage(hostInfo)
-    } else {
+    if hostInfo, err := HostInfo(); err != nil {
         logger.Warn("Skipping host info: %v", err)
+    } else {
+		combinedData["Host"] = json.RawMessage(hostInfo)
     }
 
     // Return error only if no data was collected
