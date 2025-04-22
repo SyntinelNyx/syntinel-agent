@@ -1,6 +1,7 @@
 package control
 
 import (
+	"encoding/json"
 	"io"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/commands"
@@ -36,7 +37,17 @@ func (a *Agent) Control(stream controlpb.AgentService_ControlServer) error {
 		case "download":
 			result, err = commands.DownloadFile(msg.Payload, msg.Misc)
 		case "sysinfo":
-			result, err = sysinfo.SysInfo()
+			sysUsage, err := sysinfo.Monitor()
+			if err != nil {
+				logger.Error("Failed to monitor system resource usage: %v", err)
+			}
+
+			sysJson, err := json.Marshal(&sysUsage)
+			if err != nil {
+				logger.Error("Failed to marshal system usage JSON: %v", err)
+			}
+
+			result = string(sysJson)
 		default:
 			result = "unknown command"
 		}

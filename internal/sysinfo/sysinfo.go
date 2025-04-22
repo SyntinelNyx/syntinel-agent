@@ -1,51 +1,65 @@
 package sysinfo
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-func SysInfo() (string, error) {
-	sysInfo := make(map[string]any)
+type SysInfo struct {
+	CpuUsage  float64 `json:"cpuUsage"`
+	MemUsage  Memory  `json:"memoryUsage"`
+	DiskUsage Disk    `json:"diskUsage"`
+}
 
-	cpuPercent, err := cpu.Percent(2*time.Second, true)
+type Memory struct {
+	Total       uint64  `json:"total"`
+	Available   uint64  `json:"available"`
+	Used        uint64  `json:"used"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+type Disk struct {
+	Total       uint64  `json:"total"`
+	Free        uint64  `json:"free"`
+	Used        uint64  `json:"used"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+func Monitor() (*SysInfo, error) {
+	cpuStat, err := cpu.Percent(2*time.Second, false)
 	if err != nil {
-		sysInfo["CPU"] = "Error retrieving CPU info"
-	} else {
-		formattedCPU := make([]string, len(cpuPercent))
-		for i, percent := range cpuPercent {
-			formattedCPU[i] = fmt.Sprintf("CPU[%d] %.2f", i, percent)
-		}
-		sysInfo["CPU"] = formattedCPU
-		logger.Info("CPU Info: %v", formattedCPU)
+		return nil, fmt.Errorf("error measuring cpu usage: %v", err)
 	}
 
 	memStat, err := mem.VirtualMemory()
 	if err != nil {
-		sysInfo["Memory"] = "Error retrieving memory info"
-	} else {
-		sysInfo["Memory"] = fmt.Sprintf("Memory Info: Total: %v, Available: %v, Used: %v, UsedPercent: %.2f ", memStat.Total, memStat.Available, memStat.Used, memStat.UsedPercent)
-		logger.Info("Memory Info: %v", sysInfo["Memory"])
+		return nil, fmt.Errorf("error measuring memory usage: %v", err)
 	}
 
 	diskStat, err := disk.Usage("/")
 	if err != nil {
-		sysInfo["Disk"] = "Error retrieving disk info"
-	} else {
-		sysInfo["Disk"] = fmt.Sprintf("Disk Info: Total: %v, Free: %v, Used: %v, UsedPercent: %.2f ", diskStat.Total, diskStat.Free, diskStat.Used, diskStat.UsedPercent)
-		logger.Info("Disk Info: %v", sysInfo["Disk"])
+		return nil, fmt.Errorf("error measuring disk usage: %v", err)
 	}
 
-	jsonData, err := json.Marshal(sysInfo)
-	if err != nil {
-		return "", fmt.Errorf("Error marshalling system info to JSON: %v", err)
+	sysInfo := SysInfo{
+		CpuUsage: cpuStat[0],
+		MemUsage: Memory{
+			Total:       memStat.Total,
+			Available:   memStat.Available,
+			Used:        memStat.Used,
+			UsedPercent: memStat.UsedPercent,
+		},
+		DiskUsage: Disk{
+			Total:       diskStat.Total,
+			Free:        diskStat.Free,
+			Used:        diskStat.Used,
+			UsedPercent: diskStat.UsedPercent,
+		},
 	}
 
-	return string(jsonData), nil
+	return &sysInfo, nil
 }
