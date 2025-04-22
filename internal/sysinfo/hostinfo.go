@@ -83,28 +83,28 @@ func CombinedInfo() (string, error) {
 	// Collect CPU info
 	cpuInfo, err := CpuInfo()
 	if err != nil {
-		logger.Warn("Skipping memory info: %v", err)
+		combinedData["CPU"] = err.Error()
 	}
 	combinedData["CPU"] = json.RawMessage(cpuInfo)
 
 	// Collect memory info
 	memInfo, err := MemInfo()
 	if err != nil {
-		logger.Warn("Skipping memory info: %v", err)
+		combinedData["Memory"] = err.Error()
 	}
 	combinedData["Memory"] = json.RawMessage(memInfo)
 
 	// Collect disk info
 	diskInfo, err := DiskInfo()
 	if err != nil {
-		logger.Warn("Skipping disk info: %v", err)
+		combinedData["Disk"] = err.Error()
 	}
 	combinedData["Disk"] = json.RawMessage(diskInfo)
 
 	// Collect host info
 	hostInfo, err := HostInfo()
 	if err != nil {
-		logger.Warn("Skipping host info: %v", err)
+		combinedData["Host"] = err.Error()
 	}
 	combinedData["Host"] = json.RawMessage(hostInfo)
 

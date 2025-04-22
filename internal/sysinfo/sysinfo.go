@@ -18,39 +18,28 @@ func SysInfo() (string, error) {
 	if err != nil {
 		sysInfo["CPU"] = "Error retrieving CPU info"
 	} else {
-        formattedCPU := make([]string, len(cpuPercent))
-        for i, percent := range cpuPercent {
+		formattedCPU := make([]string, len(cpuPercent))
+		for i, percent := range cpuPercent {
 			formattedCPU[i] = fmt.Sprintf("CPU[%d] %.2f", i, percent)
-        }
-        sysInfo["CPU"] = formattedCPU
+		}
+		sysInfo["CPU"] = formattedCPU
 		logger.Info("CPU Info: %v", formattedCPU)
-    }
+	}
+
 	memStat, err := mem.VirtualMemory()
 	if err != nil {
 		sysInfo["Memory"] = "Error retrieving memory info"
 	} else {
-		memoryInfo := map[string]any{
-			"Total":       memStat.Total,
-			"Available":   memStat.Available,
-			"Used":        memStat.Used,
-			"UsedPercent": fmt.Sprintf("%.2f", memStat.UsedPercent),
-		}
-		sysInfo["Memory"] = memoryInfo
-		logger.Info("Memory Info: %v", memoryInfo)
+		sysInfo["Memory"] = fmt.Sprintf("Memory Info: Total: %v, Available: %v, Used: %v, UsedPercent: %.2f ", memStat.Total, memStat.Available, memStat.Used, memStat.UsedPercent)
+		logger.Info("Memory Info: %v", sysInfo["Memory"])
 	}
 
 	diskStat, err := disk.Usage("/")
 	if err != nil {
 		sysInfo["Disk"] = "Error retrieving disk info"
 	} else {
-		diskInfo := map[string]any{
-			"Total":       diskStat.Total,
-			"Free":        diskStat.Free,
-			"Used":        diskStat.Used,
-			"UsedPercent": fmt.Sprintf("%.2f", diskStat.UsedPercent),
-		}
-		sysInfo["Disk"] = diskInfo
-		logger.Info("Disk Info: %v", diskInfo)
+		sysInfo["Disk"] = fmt.Sprintf("Disk Info: Total: %v, Free: %v, Used: %v, UsedPercent: %.2f ", diskStat.Total, diskStat.Free, diskStat.Used, diskStat.UsedPercent)
+		logger.Info("Disk Info: %v", sysInfo["Disk"])
 	}
 
 	jsonData, err := json.Marshal(sysInfo)
