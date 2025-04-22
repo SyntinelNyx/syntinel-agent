@@ -9,7 +9,7 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 )
 
-type TotalInfo struct {
+type HostInfo struct {
 	Host   host.InfoStat `json:"host"`
 	Cpu    CpuStat       `json:"cpu"`
 	Memory uint64        `json:"memory"`
@@ -24,7 +24,7 @@ type CpuStat struct {
 	CacheSize int32   `json:"cacheSize"`
 }
 
-func System() (*TotalInfo, error) {
+func System() (*HostInfo, error) {
 	hostStat, err := host.Info()
 	if err != nil {
 		return nil, fmt.Errorf("error getting host info: %v", err)
@@ -45,7 +45,7 @@ func System() (*TotalInfo, error) {
 		return nil, fmt.Errorf("error getting disk info: %v", err)
 	}
 
-	total := TotalInfo{
+	host := HostInfo{
 		Host: *hostStat,
 		Cpu: CpuStat{
 			VendorID:  cpuStat[0].VendorID,
@@ -58,5 +58,5 @@ func System() (*TotalInfo, error) {
 		Disk:   diskStat.Total,
 	}
 
-	return &total, nil
+	return &host, nil
 }

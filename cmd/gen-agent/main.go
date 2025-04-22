@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -25,12 +26,14 @@ func main() {
 	agentID := "agent-" + id
 	cert, key := tls.CreateAgentCert(agentID, caCert, caKey)
 
+	caCertName := "ca-cert.pem"
 	certName := agentID + ".crt"
 	keyName := agentID + ".key"
 
 	dataPath := filepath.Join("internal", "data")
 
 	idPath := filepath.Join(dataPath, "agent-id")
+	newCaCertPath := filepath.Join(dataPath, caCertName)
 	certPath := filepath.Join(dataPath, certName)
 	keyPath := filepath.Join(dataPath, keyName)
 
@@ -38,11 +41,36 @@ func main() {
 		logger.Fatal("Failed to write id to file: %v", err)
 	}
 
+	if err := copyFile(caCertPath, newCaCertPath); err != nil {
+		fmt.Println("Error:", err)
+	}
+
 	tls.WriteCert(certPath, cert)
 	tls.WriteKey(keyPath, key)
 
-	execTemplate(certName, keyName)
+	execTemplate(caCertName, certName, keyName)
 	buildAgent(id)
+}
+
+func copyFile(src, dst string) error {
+	srcFile, err := os.Open(src)
+	if err != nil {
+		return fmt.Errorf("could not open source file: %w", err)
+	}
+	defer srcFile.Close()
+
+	dstFile, err := os.Create(dst)
+	if err != nil {
+		return fmt.Errorf("could not create destination file: %w", err)
+	}
+	defer dstFile.Close()
+
+	_, err = io.Copy(dstFile, srcFile)
+	if err != nil {
+		return fmt.Errorf("copy failed: %w", err)
+	}
+
+	return nil
 }
 
 func parseFlags() (string, string) {
@@ -71,10 +99,11 @@ func loadTls(caCertPath string, caKeyPath string) (*x509.Certificate, *ecdsa.Pri
 	return caCert, caKey
 }
 
-func execTemplate(certName, keyName string) {
+func execTemplate(caCertName, certName, keyName string) {
 	tmplData := map[string]string{
-		"CertPath": certName,
-		"KeyPath":  keyName,
+		"CaCertPath": caCertName,
+		"CertPath":   certName,
+		"KeyPath":    keyName,
 	}
 
 	tmplContent, err := os.ReadFile("internal/data/embed.go.tmpl")

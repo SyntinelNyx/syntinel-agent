@@ -7,7 +7,7 @@ import (
 )
 
 func DownloadFile(name string, data []byte) (string, error) {
-	path := filepath.Join("/etc", "syntinel", name)
+	path := filepath.Join("/etc", "syntinel", "upload", name)
 
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0755)
 	if err != nil {

@@ -5,6 +5,9 @@ import _ "embed"
 //go:embed agent-id
 var ID []byte
 
+//go:embed {{.CaCertPath}}
+var CaCert []byte
+
 //go:embed {{.CertPath}}
 var Cert []byte
 
