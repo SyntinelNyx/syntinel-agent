@@ -31,7 +31,6 @@ func CpuInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error marshaling CPU info to JSON: %v", err)
 	}
-	logger.Info("CPU info: %s", string(data))
 	return string(data), nil
 
 }
@@ -46,7 +45,6 @@ func MemInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error marshaling memory info to JSON: %v", err)
 	}
-	logger.Info("Memory info: %s", string(data))
 	return string(data), nil
 }
 
@@ -59,7 +57,6 @@ func DiskInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error marshaling disk info to JSON: %v", err)
 	}
-	logger.Info("Disk info: %s", string(data))
 	return string(data), nil
 }
 
@@ -73,7 +70,6 @@ func HostInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error marshaling host info to JSON: %v", err)
 	}
-	logger.Info("Host info: %s", string(data))
 	return string(data), nil
 }
 
@@ -118,6 +114,5 @@ func CombinedInfo() (string, error) {
 		return "", fmt.Errorf("Error marshaling combined info to JSON: %v", err)
 	}
 
-	logger.Info("Combined system info collected (%d components)", len(combinedData))
 	return string(data), nil
 }
