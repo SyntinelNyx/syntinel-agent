@@ -1,31 +1,65 @@
 package sysinfo
 
 import (
-	"encoding/json"
-	"os/user"
+	"fmt"
+	"time"
 
-	"github.com/zcalusic/sysinfo"
-
-	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
+	"github.com/shirou/gopsutil/v4/cpu"
+	"github.com/shirou/gopsutil/v4/disk"
+	"github.com/shirou/gopsutil/v4/mem"
 )
 
-func SysInfo() string {
-	current, err := user.Current()
+type SysInfo struct {
+	CpuUsage  float64 `json:"cpuUsage"`
+	MemUsage  Memory  `json:"memoryUsage"`
+	DiskUsage Disk    `json:"diskUsage"`
+}
+
+type Memory struct {
+	Total       uint64  `json:"total"`
+	Available   uint64  `json:"available"`
+	Used        uint64  `json:"used"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+type Disk struct {
+	Total       uint64  `json:"total"`
+	Free        uint64  `json:"free"`
+	Used        uint64  `json:"used"`
+	UsedPercent float64 `json:"usedPercent"`
+}
+
+func Monitor() (*SysInfo, error) {
+	cpuStat, err := cpu.Percent(2*time.Second, false)
 	if err != nil {
-		logger.Fatal("error getting current user: %v", err)
+		return nil, fmt.Errorf("error measuring cpu usage: %v", err)
 	}
 
-	if current.Uid != "0" {
-		logger.Fatal("requires superuser privilege")
-	}
-
-	var si sysinfo.SysInfo
-	si.GetSysInfo()
-
-	data, err := json.MarshalIndent(&si, "", "  ")
+	memStat, err := mem.VirtualMemory()
 	if err != nil {
-		logger.Fatal("Error marshaling hardware info to JSON: %v", err)
+		return nil, fmt.Errorf("error measuring memory usage: %v", err)
 	}
 
-	return string(data)
+	diskStat, err := disk.Usage("/")
+	if err != nil {
+		return nil, fmt.Errorf("error measuring disk usage: %v", err)
+	}
+
+	sysInfo := SysInfo{
+		CpuUsage: cpuStat[0],
+		MemUsage: Memory{
+			Total:       memStat.Total,
+			Available:   memStat.Available,
+			Used:        memStat.Used,
+			UsedPercent: memStat.UsedPercent,
+		},
+		DiskUsage: Disk{
+			Total:       diskStat.Total,
+			Free:        diskStat.Free,
+			Used:        diskStat.Used,
+			UsedPercent: diskStat.UsedPercent,
+		},
+	}
+
+	return &sysInfo, nil
 }
