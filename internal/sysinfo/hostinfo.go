@@ -16,16 +16,16 @@ func CpuInfo() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error getting CPU info: %v", err)
 	}
-	
-    // Extract general CPU info from the first CPU stat
-    generalCpuInfo := map[string]any{
-        "VendorID":  CpuStat[0].VendorID,
-        "ModelName": CpuStat[0].ModelName,
-        "Mhz":       CpuStat[0].Mhz,
-        "CacheSize": CpuStat[0].CacheSize,
-    }
 
-    generalCpuInfo["Cores"] = len(CpuStat)
+	// Extract general CPU info from the first CPU stat
+	generalCpuInfo := map[string]any{
+		"VendorID":  CpuStat[0].VendorID,
+		"ModelName": CpuStat[0].ModelName,
+		"Mhz":       CpuStat[0].Mhz,
+		"CacheSize": CpuStat[0].CacheSize,
+	}
+
+	generalCpuInfo["Cores"] = len(CpuStat)
 
 	data, err := json.MarshalIndent(&generalCpuInfo, "", "  ")
 	if err != nil {
@@ -78,46 +78,46 @@ func HostInfo() (string, error) {
 }
 
 func CombinedInfo() (string, error) {
-    combinedData := make(map[string]any)
-    
-    // Collect CPU info
-    if cpuInfo, err := CpuInfo(); err != nil {
-		logger.Warn("Skipping CPU info: %v", err)
-    } else {
-		combinedData["CPU"] = json.RawMessage(cpuInfo)
-    }
+	combinedData := make(map[string]any)
 
-    // Collect memory info
-    if memInfo, err := MemInfo(); err != nil {
-        logger.Warn("Skipping memory info: %v", err)
-    } else {
-		combinedData["Memory"] = json.RawMessage(memInfo)
-    }
+	// Collect CPU info
+	cpuInfo, err := CpuInfo()
+	if err != nil {
+		logger.Warn("Skipping memory info: %v", err)
+	}
+	combinedData["CPU"] = json.RawMessage(cpuInfo)
 
-    // Collect disk info
-    if diskInfo, err := DiskInfo(); err != nil {
-        logger.Warn("Skipping disk info: %v", err)
-    } else {
-		combinedData["Disk"] = json.RawMessage(diskInfo)
-    }
+	// Collect memory info
+	memInfo, err := MemInfo()
+	if err != nil {
+		logger.Warn("Skipping memory info: %v", err)
+	}
+	combinedData["Memory"] = json.RawMessage(memInfo)
 
-    // Collect host info
-    if hostInfo, err := HostInfo(); err != nil {
-        logger.Warn("Skipping host info: %v", err)
-    } else {
-		combinedData["Host"] = json.RawMessage(hostInfo)
-    }
+	// Collect disk info
+	diskInfo, err := DiskInfo()
+	if err != nil {
+		logger.Warn("Skipping disk info: %v", err)
+	}
+	combinedData["Disk"] = json.RawMessage(diskInfo)
 
-    // Return error only if no data was collected
-    if len(combinedData) == 0 {
-        return "", fmt.Errorf("Failed to collect any system information")
-    }
+	// Collect host info
+	hostInfo, err := HostInfo()
+	if err != nil {
+		logger.Warn("Skipping host info: %v", err)
+	}
+	combinedData["Host"] = json.RawMessage(hostInfo)
 
-    data, err := json.MarshalIndent(combinedData, "", "  ")
-    if err != nil {
-        return "", fmt.Errorf("Error marshaling combined info to JSON: %v", err)
-    }
-    
-    logger.Info("Combined system info collected (%d components)", len(combinedData))
-    return string(data), nil
+	// Return error only if no data was collected
+	if len(combinedData) == 0 {
+		return "", fmt.Errorf("Failed to collect any system information")
+	}
+
+	data, err := json.MarshalIndent(combinedData, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("Error marshaling combined info to JSON: %v", err)
+	}
+
+	logger.Info("Combined system info collected (%d components)", len(combinedData))
+	return string(data), nil
 }
