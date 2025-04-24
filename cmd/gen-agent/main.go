@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -19,12 +20,19 @@ import (
 )
 
 func main() {
-	caCertPath, caKeyPath := parseFlags()
+	caCertPath, caKeyPath, agentIp := parseFlags()
 	caCert, caKey := loadTls(caCertPath, caKeyPath)
 
 	id := uuid.New().String()
+
 	agentID := "agent-" + id
-	cert, key := tls.CreateAgentCert(agentID, caCert, caKey)
+
+	ip := []net.IP{
+		net.ParseIP(agentIp),
+	}
+
+	logger.Info("Creating cert for %s...", agentID)
+	cert, key := tls.CreateAgentCert(agentID, caCert, caKey, ip)
 
 	caCertName := "ca-cert.pem"
 	certName := agentID + ".crt"
@@ -73,16 +81,17 @@ func copyFile(src, dst string) error {
 	return nil
 }
 
-func parseFlags() (string, string) {
+func parseFlags() (string, string, string) {
 	caCertPath := flag.String("ca-cert", "", "Path to CA certificate PEM file")
 	caKeyPath := flag.String("ca-key", "", "Path to CA private key PEM file")
+	agentIp := flag.String("agent-ip", "", "IP address of the agent reachable from the server")
 	flag.Parse()
 
-	if *caCertPath == "" || *caKeyPath == "" {
+	if *caCertPath == "" || *caKeyPath == "" || *agentIp == "" {
 		logger.Fatal("Both --ca-cert and --ca-key must be provided as arguments")
 	}
 
-	return *caCertPath, *caKeyPath
+	return *caCertPath, *caKeyPath, *agentIp
 }
 
 func loadTls(caCertPath string, caKeyPath string) (*x509.Certificate, *ecdsa.PrivateKey) {

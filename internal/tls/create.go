@@ -7,6 +7,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"math/big"
+	"net"
 	"time"
 
 	"github.com/SyntinelNyx/syntinel-agent/internal/logger"
@@ -16,9 +17,7 @@ const (
 	validFor = 100 * 365 * 24 * time.Hour
 )
 
-func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateKey) (*x509.Certificate, *ecdsa.PrivateKey) {
-	logger.Info("Creating cert for %s...", agentID)
-
+func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateKey, ip []net.IP) (*x509.Certificate, *ecdsa.PrivateKey) {
 	key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		logger.Fatal("Failed to generate ECDSA key: %v", err)
@@ -32,10 +31,10 @@ func CreateAgentCert(agentID string, ca *x509.Certificate, caKey *ecdsa.PrivateK
 		Subject: pkix.Name{
 			CommonName: agentID,
 		},
-		DNSNames:  []string{agentID, "localhost", "api.syntinel.dev"},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().Add(validFor),
-		KeyUsage:  x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+		IPAddresses: ip,
+		NotBefore:   time.Now(),
+		NotAfter:    time.Now().Add(validFor),
+		KeyUsage:    x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 		ExtKeyUsage: []x509.ExtKeyUsage{
 			x509.ExtKeyUsageClientAuth,
 			x509.ExtKeyUsageServerAuth,
